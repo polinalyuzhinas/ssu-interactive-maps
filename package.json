@@ -1,7 +1,9 @@
 {
   "dependencies": {
     "ol": "^10.5.0",
-    "proj4": "^2.15.0"
+    "proj4": "^2.15.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "name": "user",
   "version": "1.0.0",
@@ -16,6 +18,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "eslint": "^9.39.2",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^17.3.0",
     "vite": "^6.3.4"
   },
   "type": "module",

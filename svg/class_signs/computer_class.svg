@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW 2017 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="2480px" height="3508px" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 2480 3507.43"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str1 {stroke:#FEFEFE;stroke-width:5.9}
+    .str2 {stroke:#FEFEFE;stroke-width:17.71}
+    .str0 {stroke:#0064FF;stroke-width:23.62;stroke-linejoin:round}
+    .fil1 {fill:none}
+    .fil0 {fill:#0064FF}
+   ]]>
+  </style>
+ </defs>
+ <g id="Слой_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="computer_class_sign">
+   <rect id="border" class="fil0 str0" x="289.54" y="163.62" width="141.32" height="132.52"/>
+   <rect id="outer_monitor" class="fil1 str1" x="316.74" y="172.93" width="84.24" height="76.11"/>
+   <rect id="inner_monitor" class="fil1 str1" x="326.9" y="183.73" width="63.92" height="53.39"/>
+   <rect id="keyboard_border" class="fil1 str2" transform="matrix(0.354606 -0.000297438 0.149783 0.354731 317.773 258.678)" width="243.72" height="73.95" rx="1.18" ry="1.18"/>
+   <line id="keyboard_vertical" class="fil1 str1" x1="362.95" y1="260.19" x2="371.56" y2= "283.03" />
+   <line id="keyboard_horizontal" class="fil1 str1" x1="325.43" y1="272.24" x2="407.46" y2= "271.72" />
+  </g>
+ </g>
+</svg>

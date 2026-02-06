@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW 2017 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="2480px" height="3508px" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 2480 3507.43"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str2 {stroke:#FEFEFE;stroke-width:11.81}
+    .str1 {stroke:#FEFEFE;stroke-width:11.81;stroke-linejoin:round}
+    .str0 {stroke:#0064FF;stroke-width:23.62;stroke-linejoin:round}
+    .fil1 {fill:none}
+    .fil0 {fill:#0064FF}
+   ]]>
+  </style>
+ </defs>
+ <g id="Слой_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="men_locker_room_sign">
+   <rect id="border" class="fil0 str0" x="1244.42" y="1478.71" width="186.03" height="181.99"/>
+   <polygon id="hanger" class="fil1 str1" points="1374.11,1568.8 1394.07,1589.22 1414.04,1609.64 1374.11,1609.64 1334.17,1609.64 1354.14,1589.22 "/>
+   <path id="hanger_hook" class="fil1 str2" d="M1359.73 1536.14c8.82,-17.95 28.06,-12.16 29.53,-0.14 1.33,15.31 -13.82,17.07 -13.82,33.13"/>
+   <polygon id="body" class="fil1 str1" points="1299.43,1639.73 1318.3,1593.14 1337.17,1546.59 1299.43,1546.59 1261.68,1546.59 1280.55,1593.14 "/>
+   <ellipse id="head" class="fil1 str2" cx="1296.29" cy="1512" rx="13.53" ry="11.97"/>
+  </g>
+ </g>
+</svg>

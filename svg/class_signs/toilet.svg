@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW 2017 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="2480px" height="3508px" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 2480 3507.43"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <font id="FontID0" horiz-adv-x="667" font-variant="normal" style="fill-rule:nonzero" font-weight="400">
+	<font-face 
+		font-family="Arial">
+		<font-face-src>
+			<font-face-name name="Arial"/>
+		</font-face-src>
+	</font-face>
+   <missing-glyph><path d="M0 0z"/></missing-glyph>
+   <glyph unicode="W" horiz-adv-x="943" d="M200.503 0l-188.489 716.036 98.3174 0 107.362 -469.521c11.6597,-49.1723 21.9845,-98.0177 30.811,-146.345 18.8517,76.3328 29.8575,120.356 33.0176,132.016l135.34 483.85 114.172 0 102.676 -362.513c25.1719,-90.0085 43.8328,-174.514 55.8467,-253.353 9.48031,45.1677 21.6576,97.0097 36.4774,155.526l111.857 460.34 95.1572 0 -196.008 -716.036 -92.1606 0 -150.187 545.526c-12.6677,45.6853 -20.3227,73.6903 -23.1559,84.0152 -8.17268,-32.6635 -15.5009,-60.6685 -21.8483,-83.8517l-150.159 -545.69 -99.0256 0z"/>
+   <glyph unicode="C" horiz-adv-x="722" d="M587.044 251.174l94.9938 -24.0004c-19.8324,-77.8312 -55.4925,-137.001 -107.008,-177.838 -51.4879,-40.8362 -114.499,-61.3496 -189.007,-61.3496 -77.0139,0 -139.671,15.6915 -187.999,47.1836 -48.355,31.3286 -85.0231,76.8504 -110.195,136.348 -25.1719,59.6606 -37.8395,123.489 -37.8395,191.84 0,74.5076 14.1932,139.508 42.6886,195 28.4954,55.5197 69.0047,97.6908 121.501,126.513 52.4959,28.8496 110.331,43.179 173.343,43.179 71.6744,0 131.853,-18.1706 180.507,-54.6752 48.8454,-36.5046 82.8437,-87.6656 102.022,-153.674l-93.0051 -22.0118c-16.5088,52.0055 -40.6727,90.0085 -72.192,113.682 -31.4921,23.837 -71.1568,35.6601 -118.994,35.6601 -54.8387,0 -100.851,-13.158 -137.682,-39.5013 -36.8315,-26.316 -62.8207,-61.84 -77.6677,-106.163 -15.0105,-44.5139 -22.5021,-90.3354 -22.5021,-137.519 0,-60.832 8.8265,-114.009 26.5067,-159.34 17.653,-45.4946 45.1677,-79.3295 82.4896,-101.832 37.3492,-22.5021 77.695,-33.6714 121.174,-33.6714 53.0135,0 97.6908,15.3374 134.359,45.8487 36.6681,30.6476 61.513,75.9787 74.5076,136.32z"/>
+  </font>
+  <style type="text/css">
+   <![CDATA[
+    @font-face { font-family:"Arial";font-variant:normal;font-weight:normal;src:url("#FontID0") format(svg)}
+    .str0 {stroke:#0064FF;stroke-width:23.62;stroke-linejoin:round}
+    .fil0 {fill:#0064FF}
+    .fil1 {fill:#FEFEFE}
+    .fnt0 {font-weight:normal;font-size:43.35px;font-family:'Arial'}
+   ]]>
+  </style>
+ </defs>
+ <g id="Слой_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="toilet_sign">
+   <rect id="border" class="fil0 str0" x="2193.48" y="1295.39" width="67.94" height="66.46"/>
+   <g transform="matrix(1.06064 0 0 1 874.96 -409.427)">
+    <text x="1240" y="1753.71" id="text" class="fil1 fnt0">WC</text>
+   </g>
+  </g>
+ </g>
+</svg>

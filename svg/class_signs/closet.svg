@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW 2017 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="2480px" height="3508px" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 2480 3507.43"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str2 {stroke:#FEFEFE;stroke-width:5.9}
+    .str0 {stroke:#0064FF;stroke-width:23.62;stroke-linejoin:round}
+    .str1 {stroke:#FEFEFE;stroke-width:5.9;stroke-linejoin:round}
+    .fil1 {fill:none}
+    .fil0 {fill:#0064FF}
+   ]]>
+  </style>
+ </defs>
+ <g id="Слой_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="closet_sign">
+   <rect id="border" class="fil0 str0" x="1892.8" y="2664.87" width="69.08" height="64.78"/>
+   <polygon id="hanger" class="fil1 str1" points="1929.14,2693.55 1941.27,2705.95 1953.4,2718.36 1929.14,2718.36 1904.88,2718.36 1917.01,2705.95 "/>
+   <path id="hanger_hook" class="fil1 str2" d="M1921.15 2679.15c4.25,-8.64 13.52,-5.85 14.23,-0.06 0.64,7.37 -6.66,8.22 -6.66,15.95"/>
+  </g>
+ </g>
+</svg>

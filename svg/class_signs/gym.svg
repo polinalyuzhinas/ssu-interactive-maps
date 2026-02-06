@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW 2017 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="2480px" height="3508px" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 2480 3507.43"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str2 {stroke:#FEFEFE;stroke-width:8.86}
+    .str1 {stroke:#FEFEFE;stroke-width:8.86}
+    .str0 {stroke:#0064FF;stroke-width:23.62;stroke-linejoin:round}
+    .fil1 {fill:none}
+    .fil0 {fill:#0064FF}
+   ]]>
+  </style>
+ </defs>
+ <g id="Слой_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="gym_sign">
+   <rect id="border" class="fil0 str0" x="1149.42" y="1318.46" width="150.64" height="141.27"/>
+   <circle id="ball" class="fil1 str1" cx="1224.75" cy="1389.09" r="50.66"/>
+   <line id="central_vertical_stripe" class="fil1 str1" x1="1226.22" y1="1337.99" x2="1224.75" y2= "1439.75" />
+   <line id="central_horizontal_stripe" class="fil1 str1" x1="1174.09" y1="1389.09" x2="1275.41" y2= "1389.09" />
+   <path id="left_stripe" class="fil1 str2" d="M1193.84 1348.95c3.59,13.38 7.18,26.76 7.18,39.99 0,13.23 -3.59,26.3 -7.18,39.38"/>
+   <path id="right_stripe" class="fil1 str2" d="M1257.5 1351.3c-3.59,12.72 -7.18,25.43 -7.18,38 0,12.57 3.59,25 7.18,37.42"/>
+  </g>
+ </g>
+</svg>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW 2017 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="2480px" height="3508px" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 2480 3507.43"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str1 {stroke:white;stroke-width:8.86}
+    .str0 {stroke:#0064FF;stroke-width:23.62;stroke-linejoin:round}
+    .str2 {stroke:#FEFEFE;stroke-width:8.86;stroke-linecap:round;stroke-linejoin:round}
+    .fil1 {fill:none}
+    .fil0 {fill:#0064FF}
+   ]]>
+  </style>
+ </defs>
+ <g id="Слой_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="assembly_hall_sign">
+   <rect id="border" class="fil0 str0" x="1162.73" y="1178.03" width="226.37" height="124.28"/>
+   <path id="right_curtain" class="fil1 str1" d="M1379.46 1291.51l-0.65 -98.24 -73.66 0c-0.15,13.83 -0.29,27.65 7.38,36.34 7.67,8.68 18.79,11.23 34.28,14.77l-13.76 47.7 46.41 -0.57z"/>
+   <path id="left_curtain" class="fil1 str1" d="M1173.81 1291.84l0.65 -98.95 74.2 0c0.15,13.93 0.29,27.85 -7.44,36.6 -7.72,8.75 -18.93,11.31 -34.53,14.88l13.87 48.04 -46.75 -0.57z"/>
+   <line id="seats_3" class="fil1 str2" x1="1241.32" y1="1249.22" x2="1309.61" y2= "1249.22" />
+   <line id="seats_2" class="fil1 str2" x1="1235.67" y1="1261.9" x2="1315.6" y2= "1261.9" />
+   <line id="seats_1" class="fil1 str2" x1="1231.4" y1="1275.17" x2="1318.83" y2= "1275.17" />
+  </g>
+ </g>
+</svg>

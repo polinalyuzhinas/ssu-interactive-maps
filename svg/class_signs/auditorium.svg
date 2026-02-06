@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW 2017 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="2480px" height="3508px" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 2480 3507.43"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str1 {stroke:#FEFEFE;stroke-width:8.86}
+    .str0 {stroke:#0064FF;stroke-width:23.62;stroke-linejoin:round}
+    .str2 {stroke:#FEFEFE;stroke-width:8.86;stroke-linecap:round;stroke-linejoin:round}
+    .fil1 {fill:none}
+    .fil0 {fill:#0064FF}
+   ]]>
+  </style>
+ </defs>
+ <g id="Слой_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="auditorium_sign">
+   <rect id="border" class="fil0 str0" x="988.03" y="752.95" width="188.44" height="103.46"/>
+   <rect id="screen" class="fil1 str1" x="1014.27" y="764.93" width="135.01" height="35.72"/>
+   <line id="seat_3" class="fil1 str2" x1="1022.04" y1="822.16" x2="1142.07" y2= "822.16" />
+   <line id="seat_2" class="fil1 str2" x1="1008.89" y1="835.22" x2="1151.19" y2= "835.22" />
+   <line id="seat_1" class="fil1 str2" x1="1002.16" y1="847.8" x2="1161.17" y2= "847.8" />
+  </g>
+ </g>
+</svg>
