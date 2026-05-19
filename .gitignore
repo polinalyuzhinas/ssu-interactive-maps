@@ -20,3 +20,5 @@ lerna-debug.log*
 *.sln
 *.sw?
 /.vs/VSWorkspaceState.json
+
+server\how_to_turn_on.txt
