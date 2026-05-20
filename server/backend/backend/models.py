@@ -28,8 +28,7 @@ class Faculty_Teachers(models.Model):
 
 class Lessons(models.Model):
     name = models.TextField(max_length = 255, help_text="Название пары")
-    teacher = models.ForeignKey(Faculty_Teachers, on_delete=models.RESTRICT)
-    faculty = models.ForeignKey(Faculties, on_delete=models.RESTRICT)
+    assigment = models.ForeignKey(Faculty_Teachers, on_delete=models.RESTRICT, help_text="Прикрепляется запись преподаватель-факультет для этой пары")
 
     def __str__(self):
         return f"[id: {self.id}] Пара с названием {self.name} на факультете {self.faculty}, препопадаватель {'' + (self.teacher) if self.teacher else 'не назначен'}"
