@@ -80,7 +80,12 @@ class Groups(models.Model):
     class Meta:
         verbose_name = "Группа"
         verbose_name_plural = "Группы"
-
+        constraints = [
+            models.UniqueConstraint(
+                fields=['number', 'group_type', 'form', 'faculty'],
+                name='unique_group_per_faculty'
+            )
+        ]
 
 class Groups_Schedule(models.Model):
     group = models.ForeignKey(Groups, editable=True, verbose_name="Группа", on_delete=models.CASCADE)
@@ -160,7 +165,7 @@ class Lessons_Schedule(models.Model):
     week_day = models.SmallIntegerField(verbose_name="День недели", choices=DAYS_ON_WEEK, default="1", help_text="Номер дня недели")
     time = models.SmallIntegerField(verbose_name="Время", choices=LESSON_TIME, help_text="Номер пары")
     parity = models.BooleanField(verbose_name="Чётность", choices=LESSON_PARITY, null=True, default=None, blank=True, help_text="Числитель или знаменатель")
-
+    comment = models.TextField(verbose_name="Комментарий", max_length=255, null=True, default=None, blank=True, help_text="Комментарий от диспетчера")
     def __str__(self):
         return f"[id: {self.pk}] {self.week_day} {self.time} {self.lesson}, комната {self.auditorium}, для {f'{self.subgroup} подгруппы' if self.subgroup else 'всей группы'}, {self.type}, {self.parity if self.parity else ''}"
     

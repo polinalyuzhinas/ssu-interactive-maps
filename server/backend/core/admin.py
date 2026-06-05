@@ -69,18 +69,14 @@ def get_field_info(request, app_label, model_name, field_name):
         field = model._meta.get_field(field_name)
         
         if field.is_relation and field.many_to_one:
-            if value and value != '':
-                try:
-                    # trying to convert to int
-                    related_pk = int(value)
-                except (ValueError, TypeError):
-                    # maybe this is object already
-                    related_pk = value
-                
-                related_model = field.related_model
-                value = related_model.objects.get(pk=related_pk)
-            else:
-                value = None
+            related_model = field.related_model
+            choices = []
+            for obj in related_model.objects.all()[:100]:
+                choices.append({
+                    'value': str(obj.pk),
+                    'label': str(obj)
+                })
+            return JsonResponse({'type': 'foreignkey', 'choices': choices})
         
         elif hasattr(field, 'choices') and field.choices:
             choices = []
@@ -132,6 +128,29 @@ def autocomplete_view(request):
     except Exception as e:
         return JsonResponse({'error': str(e), 'results': []}, status=400)
     
+def get_field_choices(field):
+    choices = []
+    
+    if hasattr(field, 'choices') and field.choices:
+        for value, label in field.choices:
+            choices.append({
+                'value': value,
+                'label': str(label)
+            })
+        return choices
+
+    if field.is_relation and field.many_to_one:
+        related_model = field.related_model
+        qs = related_model.objects.all()
+        for obj in qs:
+            choices.append({
+                'value': obj.pk,
+                'label': str(obj)
+            })
+        return choices
+
+    return choices
+
 def get_field_type(field):
     if isinstance(field, models.BooleanField):
         return 'boolean'
@@ -143,48 +162,36 @@ def get_field_type(field):
         return 'text'
     return 'default'
 
-def get_field_choices(field, instance=None):
-    choices = []
-    
-    if hasattr(field, 'choices') and field.choices:
-        for value, label in field.choices:
-            choices.append({
-                'value': value,
-                'label': str(label)
-            })
-        return choices
-    
-    if field.is_relation and field.many_to_one:
-        related_model = field.related_model
-        for obj in related_model:
-            choices.append({
-                'value': obj.pk,
-                'label': str(obj)  # using __str__ methods
-            })
-        return choices
-    
-    return choices
-
 class BaseModelAdminMixin:
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}
         extra_context['app_list'] = site.get_app_list(request)
         response = super().changelist_view(request, extra_context)
+        
         model = self.model
         field_info = {}
+        
         for field_name in self.list_display:
             try:
                 field = model._meta.get_field(field_name)
+                field_type = get_field_type(field)
+                
                 field_info[field_name] = {
-                    'type': get_field_type(field),
+                    'type': field_type,
                     'name': field_name,
                     'choices': get_field_choices(field),
                     'verbose_name': field.verbose_name or field_name,
                     'editable': field.editable,
                 }
             except Exception as e:
-                field_info[field_name] = {'type': 'default', 'name': field_name, 'choices': [], 'editable': True}
-
+                field_info[field_name] = {
+                    'type': 'default',
+                    'name': field_name,
+                    'choices': [],
+                    'verbose_name': field_name.replace('_', ' ').title(),
+                    'editable': True,
+                }
+        
         response.context_data['field_info'] = field_info
         response.context_data['model_meta'] = {
             'app_label': model._meta.app_label,

@@ -2,12 +2,14 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     const searchInputs = document.querySelectorAll('#result_list .search-input');
-    
-    searchInputs.forEach(searchInput => {
+    if (searchInputs.length === 0) {
+        return;
+    }
+
+    searchInputs.forEach((searchInput, index) => {
         const colIndex = searchInput.dataset.col;
         const fieldName = searchInput.dataset.fieldName;
         
-        // debounce delay
         let debounceTimer;
         
         searchInput.addEventListener('input', function() {
@@ -24,85 +26,85 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    // read-only
+
     function getCellText(cell) {
-        if (!cell) return '';
-        
+        if (!cell) {
+            return '';
+        }
+
         const select = cell.querySelector('.cell-select');
         if (select) {
             const selectedOption = select.options[select.selectedIndex];
-            return selectedOption ? selectedOption.text.trim() : '';
+            const text = selectedOption ? selectedOption.text.trim() : '';
+            return text;
         }
 
         const input = cell.querySelector('.cell-input');
         if (input && input.type !== 'checkbox') {
-            return input.value || '';
+            const text = input.value || '';
+            return text;
         }
         
         const checkbox = cell.querySelector('.cell-boolean');
         if (checkbox) {
-            return checkbox.checked ? 'Да' : 'Нет';
+            const text = checkbox.checked ? 'Да' : 'Нет';
+            return text;
         }
         
-        return cell.textContent || '';
+        // fallback (all textContent of element)
+        const text = cell.textContent || '';
+        return text;
     }
-    
+
     function filterTableByField(colIndex, searchTerm) {
-        const rows = document.querySelectorAll('#result_list tbody tr');
-        let visibleCount = 0;
-        
-        // indexes + 1 because first col always with selection checkboxes
-        const cellIndex = parseInt(colIndex) + 1;
-        
-        rows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            if (cells.length <= cellIndex) return;
-            
-            const cell = cells[cellIndex];
-            
-            // read only
-            const cellText = getCellText(cell).toLowerCase();
-            const searchLower = searchTerm.toLowerCase();
-            
-            const matches = searchTerm === '' || cellText.includes(searchLower);
-            
-            if (matches) {
-                row.style.display = '';
-                visibleCount++;
-            } else {
-                row.style.display = 'none';
-            }
-        });
-        
-        updateVisibleCounter(visibleCount);
-    }
     
-    function updateVisibleCounter(visibleCount) {
-        const bulkCounter = document.getElementById('bulk-counter');
-        if (bulkCounter) {
-            const originalTotal = document.querySelectorAll('#result_list tbody tr').length;
-            if (visibleCount === originalTotal) {
-                bulkCounter.textContent = `Выбрано 0 из ${originalTotal}`;
-            } else {
-                bulkCounter.textContent = `Выбрано 0 из ${visibleCount} (отфильтровано из ${originalTotal})`;
-            }
+    const rows = document.querySelectorAll('#result_list tbody tr');
+    
+    if (rows.length === 0) {
+        return;
+    }
+
+    const searchInput = document.querySelector(`.search-input[data-col="${colIndex}"]`);
+    const fieldName = searchInput?.dataset.fieldName;
+    
+    if (!fieldName) {
+        return;
+    }
+
+    let visibleCount = 0;
+    let debugInfo = [];
+    
+    rows.forEach((row, rowIndex) => {
+        const cell = row.querySelector(`td[data-field-name="${fieldName}"]`);
+        
+        if (!cell) {
+            return;
         }
-    }
-    
-    function updateFilterIndicator() {
-        const hasActiveFilter = Array.from(searchInputs).some(input => input.value.trim() !== '');
-        const resetBtn = document.querySelector('.reset-filters-btn');
-        if (resetBtn) {
-            resetBtn.style.background = hasActiveFilter ? '#dc3545' : '#6c757d';
-            resetBtn.textContent = hasActiveFilter ? '✖ Сбросить фильтры' : 'Сбросить фильтры';
+        
+        const cellText = getCellText(cell).toLowerCase();
+        const searchLower = searchTerm.toLowerCase();
+        
+        const matches = searchTerm === '' || cellText.includes(searchLower);
+        
+        if (matches) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
         }
-    }
-    
-    searchInputs.forEach(input => {
-        input.addEventListener('input', updateFilterIndicator);
-        input.addEventListener('search', updateFilterIndicator);
     });
     
-    updateFilterIndicator();
+    updateVisibleCounter(visibleCount, rows.length);
+}
+
+    function updateVisibleCounter(visibleCount, totalRows) {
+        const bulkCounter = document.getElementById('bulk-counter');
+        if (bulkCounter) {
+            if (visibleCount === totalRows) {
+                bulkCounter.textContent = `Выбрано 0 из ${totalRows}`;
+            } else {
+                bulkCounter.textContent = `Выбрано 0 из ${visibleCount} (отфильтровано из ${totalRows})`;
+            }
+        }
+    }
 });
