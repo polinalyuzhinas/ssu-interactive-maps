@@ -13,7 +13,8 @@
   "scripts": {
     "start": "node server.js",
     "build": "vite build",
-    "dev": "vite --host"
+    "dev": "vite --host",
+    "format": "prettier --write '**/*.html'"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +24,9 @@
     "eslint": "^9.39.2",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^17.3.0",
+    "prettier": "^3.8.3",
+    "prettier-plugin-django": "^0.5.18",
+    "prettier-plugin-jinja-template": "^2.2.0",
     "vite": "^6.3.4"
   },
   "type": "module",

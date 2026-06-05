@@ -1,0 +1,74 @@
+:root {
+  /* colors */
+  /* light theme */
+    --light-bg: #EAEAEA;
+    --light-button-primary: #6985BA;
+    --light-button-text-stroke: #304D86;
+    --light-text-color: #000;
+    --light-delete-table-buttons: #fff;
+    --light-delete-buttons-fill: #C62F2F;
+    --light-delete-buttons-text-stroke: #5F0000;
+    --light-bg-table: #FFF;
+    --light-header-table: #6985BA;
+    --light-row-selection: #BCCAEB;
+    --light-edit-inputs-buttons: #818BA0;
+    --light-inputs-fill: #D2DAEB;
+    --light-inputs-stroke: #A0ACC1;
+    --light-checkbox-fill: #A0ACC1;
+    --light-checkbox-stroke: #778091;
+    --light-pagination-hightlight: #293D65;
+    --light-table-tree: #605F5F;
+    --light-add-button-fill: #709E6E;
+    --light-add-button-stroke: #3D5B3C;
+
+
+  /* dark theme */
+    --dark-bg: #252634;
+    --dark-button-primary: #A671B4;
+    --dark-button-text-stroke: #490E62;
+    --dark-text-color: #FFF;
+    --dark-delete-table-buttons: #F5D1FF;
+    --dark-delete-buttons-fill: #A10E0E;
+    --dark-delete-buttons-text-stroke: #0B0000;
+    --dark-bg-table: #4E3854;
+    --dark-header-table: #A671B4;
+    --dark-row-selection: #360F42;
+    --dark-edit-inputs-buttons: #F5D1FF;
+    --dark-inputs-fill: #906B9A;
+    --dark-inputs-stroke: #BE8ACC;
+    --dark-checkbox-fill: #BE8ACC;
+    --dark-checkbox-stroke: #F6D4FF;
+    --dark-pagination-hightlight: #6D4D76;
+    --dark-table-tree: #F5D1FF;
+    --dark-add-button-fill: #466745;
+    --dark-add-button-stroke: #273C26;
+
+
+  /* both */
+    --button-color-text: #f5f5f5;
+    --disabled-button-fill: #9F9F9F;
+    --disabled-button-stroke: #5E5E5E;
+    
+  
+  /* text */
+    --main-font: 'Inter', sans-serif;
+    --header-font: 'Montserrat', serif;
+    --headers-font-weight: bold;
+    --desktop-main-header-font-size: 30px;
+    --desktop-header-font-size: 24px;
+    --desktop-main-font-size: 20px;
+    --desktop-pagination-font-size: 30px;
+    --tablet-main-header-font-size: 24px;
+    --tablet-header-font-size: 20px;
+    --tablet-main-font-size: 16px;
+    --tablet-pagination-font-size: 28px;
+    --mobile-main-header-font-size: 14px;
+    --mobile-header-font-size: 14px;
+    --mobile-main-font-size: 20px;
+    --mobile-pagination-font-size: 28px;
+
+  /* sizes dekstop */
+  --desktop-size-theme-button: 55px;
+  --desktop-size-profile: 90px;
+
+}

@@ -1,8 +1,15 @@
 {
-  "singleQuote": true,
-  "semi": true,
-  "tabWidth": 2,
-  "trailingComma": "all",
   "printWidth": 100,
-  "endOfLine": "lf"
+  "tabWidth": 2,
+  "useTabs": false,
+  "singleQuote": true,
+  "plugins": ["prettier-plugin-jinja-template"],
+  "overrides": [
+    {
+      "files": ["*.html"],
+      "options": {
+        "parser": "jinja-template"
+      }
+    }
+  ]
 }

@@ -1,0 +1,150 @@
+#header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: #fff;
+  border-bottom: 1px solid #e0e4ea;
+  min-height: 64px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #7B8EB5;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.back-button:hover {
+  background: #5b7fa6;
+  transform: translateX(-2px);
+}
+
+.back-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+#branding h1#site-name {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+#branding h1#site-name a {
+  color: #1a2332;
+  text-decoration: none;
+  border-bottom: 2px solid #1a2332;
+  padding-bottom: 2px;
+  transition: color 0.2s ease;
+}
+
+#branding h1#site-name a:hover {
+  color: #5b7fa6;
+  border-bottom-color: #5b7fa6;
+}
+
+#user-tools {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.user-profile:hover {
+  background: rgba(123, 142, 181, 0.1);
+}
+
+.user-avatar {
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  width: var(--desktop-size-profile);
+  height: var(--desktop-size-profile);
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: var(--light-button-primary);
+  border: none;
+}
+
+.user-name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #1a2332;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* hiding default <a> from Django */
+#user-tools > a:not(.user-profile),
+#user-tools > form,
+#user-tools > strong {
+  display: none !important;
+}
+
+.theme-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--desktop-size-theme-button);
+  height: var(--desktop-size-theme-button);
+  border: none;
+  border-radius: 50px;
+  transition: all 0.25s ease;
+}
+
+.theme-btn-light {
+  background-color: var(--light-button-primary);
+}
+
+.theme-btn-dark {
+  background-color: var(--dark-button-primary);
+}
+
+.theme-btn svg {
+  transition: all 0.25s ease;
+}
+
+.theme-btn.unactive {
+  background-color: var(--disabled-button-fill);
+  cursor: pointer;
+}
+
+.theme-btn.unactive svg path {
+  stroke: var(--disabled-button-stroke);
+}
+
+.theme-btn.unactive:hover {
+  opacity: 0.5;
+}

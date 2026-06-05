@@ -1,0 +1,15 @@
+{% load admin_list %}
+
+<p class="paginator">
+  <span class="custom-count">
+    Всего: {{ cl.result_count }}
+  </span>
+  
+  <div class="pagination-wrapper">
+    {% if pagination_required %}
+      {% for i in page_range %}
+        {% paginator_number cl i %}
+      {% endfor %}
+    {% endif %}
+  </div>
+</p>

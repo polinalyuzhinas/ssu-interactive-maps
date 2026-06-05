@@ -5,6 +5,6 @@ py manage.py runserver - start the application
 venv\Scripts\Deactivate.ps1 - deactivate the virtual environment
 
 after some applied differences in the code:
-python manage.py makemigrations
+python manage.py makemigrations core
 python manage.py migrate
 python manage.py runserver

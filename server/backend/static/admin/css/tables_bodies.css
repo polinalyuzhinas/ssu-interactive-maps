@@ -1,0 +1,599 @@
+.editable-cell {
+  position: relative;
+  padding: 8px 12px;
+  vertical-align: middle;
+}
+
+.editable-cell.editing {
+  background: #fffef0  ;
+}
+
+.editable-cell[data-editable="False"] .edit-icon-btn {
+    display: none  ;
+}
+
+.cell-editor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cell-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 0.875rem;
+  color: #2c3e50;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.cell-input:hover {
+  background: rgba(91, 127, 166, 0.05);
+  border-color: #d0d8e4;
+}
+
+.cell-input:focus {
+  background: #fff;
+  border-color: #5b7fa6;
+  box-shadow: 0 0 0 3px rgba(91, 127, 166, 0.1);
+}
+
+.cell-input.changed {
+  background: #fff9e6;
+  border-color: #ffc107;
+}
+
+.cell-input,
+.cell-select,
+.cell-boolean-wrapper {
+  flex: 1;
+}
+
+.edit-icon-btn {
+    background: transparent;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    opacity: 1;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.edit-icon-btn:hover {
+  background: rgba(129, 139, 160, 0.1);
+  transform: scale(1.1);
+}
+
+.edit-icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Кнопки действий */
+.cell-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.save-btn,
+.cancel-btn {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-btn {
+  background: #4caf50;
+  color: #fff;
+}
+
+.save-btn:hover {
+  background: #43a047;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+.cancel-btn {
+  background: #e0e0e0;
+  color: #555;
+}
+
+.cancel-btn:hover {
+  background: #d5d5d5;
+}
+
+#result_list tbody tr.editing {
+  background: #fffef0  ;
+}
+
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #5b7fa6;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(91, 127, 166, 0.2);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+}
+
+.autocomplete-dropdown.show {
+  display: block;
+}
+
+.autocomplete-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.autocomplete-item:hover {
+  background: #f0f4f8;
+}
+
+.autocomplete-item.active {
+  background: #5b7fa6;
+  color: #fff;
+}
+
+.cell-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.save-btn,
+.cancel-btn {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-btn {
+  background: #4caf50;
+  color: #fff;
+}
+
+.save-btn:hover {
+  background: #43a047;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+.cancel-btn {
+  background: #e0e0e0;
+  color: #555;
+}
+
+.cancel-btn:hover {
+  background: #d5d5d5;
+}
+
+/* Подсветка изменённой строки */
+#result_list tbody tr.editing {
+  background: #fffef0  ;
+}
+
+/* Для будущих autocomplete-выпадающих списков */
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #5b7fa6;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(91, 127, 166, 0.2);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+}
+
+.autocomplete-dropdown.show {
+  display: block;
+}
+
+.autocomplete-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.autocomplete-item:hover {
+  background: #f0f4f8;
+}
+
+.autocomplete-item.active {
+  background: #5b7fa6;
+  color: #fff;
+}
+
+.cell-select {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 0.875rem;
+  color: #2c3e50;
+  outline: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.cell-select:hover {
+  background: rgba(91, 127, 166, 0.05);
+  border-color: #d0d8e4;
+}
+
+.cell-select:focus {
+  background: #fff;
+  border-color: #5b7fa6;
+  box-shadow: 0 0 0 3px rgba(91, 127, 166, 0.1);
+}
+
+.cell-select.changed {
+  background: #fff9e6;
+  border-color: #ffc107;
+}
+
+.cell-readonly {
+  padding: 6px 10px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* ===== WRAPPER ДЛЯ SELECT С КНОПКОЙ ===== */
+.select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+/* Убираем стандартную стрелку у select */
+.cell-select {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 0.875rem;
+  color: #2c3e50;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  transition: all 0.2s ease;
+}
+
+/* Кнопка-стрелка */
+.select-arrow-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  opacity: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.select-wrapper:hover .select-arrow-btn,
+.select-arrow-btn:focus {
+  opacity: 1;
+}
+
+.select-arrow-btn:hover {
+  background: rgba(129, 139, 160, 0.1);
+}
+
+.select-arrow-btn:hover svg path {
+  stroke: #5b7fa6;
+}
+
+.select-arrow-btn svg {
+  width: 42px;
+  height: 24px;
+  display: block;
+}
+
+/* Анимация стрелки при открытии select */
+.select-wrapper.open .select-arrow-btn svg {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+}
+
+.select-wrapper.open .select-arrow-btn svg path {
+  stroke: #5b7fa6;
+}
+
+/* Стили для select при фокусе */
+.select-wrapper:focus-within .cell-select {
+  background-color: #fff;
+  border-color: #5b7fa6;
+  box-shadow: 0 0 0 3px rgba(91, 127, 166, 0.1);
+}
+
+.select-wrapper:focus-within .select-arrow-btn svg path {
+  stroke: #5b7fa6;
+}
+
+/* Изменённый select */
+.select-wrapper.changed .cell-select {
+  background-color: #fff9e6;
+  border-color: #ffc107;
+}
+
+.select-wrapper.changed .select-arrow-btn svg path {
+  stroke: #ffc107;
+}
+
+#result_list .action-checkbox {
+    width: 35px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#result_list .action-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 0;
+    opacity: 1  ;
+    visibility: visible  ;
+    display: inline-block  ;
+    position: static  ;
+    transform: none  ;
+}
+
+.cell-select {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    color: #333;
+}
+
+.cell-select:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.editing .cell-select {
+    background-color: white  ;
+    border-color: #4caf50  ;
+}
+
+.cell-select.changed {
+    border-color: #ff9800  ;
+    background-color: #fff8e1  ;
+}
+
+.cell-boolean-wrapper {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  padding: 4px 0;
+}
+
+.cell-boolean {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  width: 0;
+  height: 0;
+}
+
+.boolean-indicator {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d0d8e4;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: #fff;
+  margin-right: 8px;
+}
+
+.boolean-indicator::after {
+  content: '';
+  width: 6px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.2s ease;
+  margin-bottom: 2px;
+}
+
+.cell-boolean-wrapper:hover .boolean-indicator {
+  border-color: #5b7fa6;
+  background: rgba(91, 127, 166, 0.05);
+}
+
+.cell-boolean:checked + .boolean-indicator {
+  background: #5b7fa6;
+  border-color: #5b7fa6;
+}
+
+.cell-boolean:checked + .boolean-indicator::after {
+  transform: rotate(45deg) scale(1);
+}
+
+.cell-boolean.changed + .boolean-indicator {
+  border-color: #ffc107;
+  background: #fff9e6;
+}
+
+.cell-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.save-btn,
+.cancel-btn {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-btn {
+  background: #4caf50;
+  color: #fff;
+}
+
+.save-btn:hover {
+  background: #43a047;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+.cancel-btn {
+  background: #e0e0e0;
+  color: #555;
+}
+
+.cancel-btn:hover {
+  background: #d5d5d5;
+}
+
+.cell-select.not-editable,
+.cell-input.not-editable {
+  background-color: #e9ecef  ;
+  border-color: #dee2e6  ;
+  color: #6c757d  ;
+  cursor: not-allowed  ;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.cell-select.not-editable:hover,
+.cell-input.not-editable:hover {
+  background-color: #e9ecef  ;
+  border-color: #dee2e6  ;
+}
+
+.cell-select.not-editable:focus,
+.cell-input.not-editable:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: #dee2e6  ;
+}
+
+.cell-boolean-wrapper.not-editable {
+  pointer-events: none;
+  cursor: not-allowed  ;
+  opacity: 0.6;
+}
+
+.cell-boolean-wrapper.not-editable .boolean-indicator {
+  border-color: #adb5bd  ;
+  background: #e9ecef  ;
+  cursor: not-allowed  ;
+}
+
+.cell-boolean-wrapper.not-editable .cell-boolean:checked + .boolean-indicator {
+  background: #adb5bd  ;
+  border-color: #adb5bd  ;
+}
+
+.cell-boolean-wrapper.not-editable .cell-boolean:checked + .boolean-indicator::after {
+  border-color: #fff  ;
+  opacity: 0.7;
+}
+
+.cell-boolean-wrapper.not-editable:hover .boolean-indicator {
+  border-color: #adb5bd  ;
+  background: #e9ecef  ;
+}
+
+.not-editable-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-left: 8px;
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.not-editable-icon::before {
+  content: 'заблокировано';
+  font-size: 14px;
+}
+
+.cell-input:disabled, .cell-input.is-disabled,
+.cell-select:disabled, .cell-select.is-disabled {
+    opacity: 1  ;
+    -webkit-text-fill-color: #6c757d  ;
+    color: #6c757d  ;
+    background-color: transparent  ;
+    border-color: transparent;
+    cursor: not-allowed;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.cell-input:disabled:hover, .cell-input:disabled:focus,
+.cell-input.is-disabled:hover, .cell-input.is-disabled:focus,
+.cell-select:disabled:hover, .cell-select:disabled:focus,
+.cell-select.is-disabled:hover, .cell-select.is-disabled:focus {
+    background-color: transparent  ;
+    border-color: transparent  ;
+    box-shadow: none  ;
+    outline: none  ;
+}
+
+.cell-boolean:disabled, .cell-boolean.is-disabled {
+    opacity: 1  ;
+    cursor: not-allowed  ;
+}
+
+.cell-boolean-wrapper:has(.cell-boolean:disabled),
+.cell-boolean-wrapper:has(.cell-boolean.is-disabled) {
+    cursor: not-allowed  ;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.select-arrow-btn:disabled {
+    opacity: 0.3  ;
+    cursor: not-allowed  ;
+    pointer-events: none;
+}
