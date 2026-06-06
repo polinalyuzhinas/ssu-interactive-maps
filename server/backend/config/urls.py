@@ -32,4 +32,7 @@ urlpatterns = [
     path('api/update-cell/<str:app_label>/<str:model_name>/',
          core_admin.update_cell, name='api_update_cell'),
     path('api/autocomplete/', core_admin.autocomplete_view, name='api_autocomplete'),
+    path('api/get-all/<str:app_label>/<str:model_name>/', 
+     core_admin.get_all_objects, 
+     name='api_get_all_objects'),
 ]

@@ -1,4 +1,5 @@
 import json
+import re
 from django.db import models
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
@@ -8,6 +9,8 @@ from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
 from django.apps import apps
 from django.views.decorators.http import require_http_methods
+from django.template.response import TemplateResponse
+from django.db.models import Q
 
 @staff_member_required
 @require_http_methods(["POST"])
@@ -99,7 +102,7 @@ def get_field_info(request, app_label, model_name, field_name):
             
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
-    
+
 @staff_member_required
 def autocomplete_view(request):
     try:
@@ -112,22 +115,62 @@ def autocomplete_view(request):
             return JsonResponse({'results': []})
         
         model = apps.get_model(app_label, model_name)
+        model_field = model._meta.get_field(field_name)
         
-        queryset = model.objects.exclude(**{f'{field_name}__isnull': True})
-        queryset = queryset.exclude(**{f'{field_name}__exact': ''})
-        
-        if term:
-            queryset = queryset.filter(**{f'{field_name}__icontains': term})
-        
-        values = queryset.values_list(field_name, flat=True).distinct()[:20]
-        
-        results = [{'id': val, 'text': str(val)} for val in values if val]
-        
-        return JsonResponse({'results': results})
-        
+        if model_field.is_relation and model_field.many_to_one:
+            related_model = model_field.related_model
+            
+            # assembling all text from related fields
+            search_fields = [
+                f.name for f in related_model._meta.fields 
+                if isinstance(f, (models.CharField, models.TextField))
+            ]
+            for f in related_model._meta.fields:
+                if f.is_relation and f.many_to_one:
+                    deeper_model = f.related_model
+                    for deeper_f in deeper_model._meta.fields:
+                        if isinstance(deeper_f, (models.CharField, models.TextField)):
+                            search_fields.append(f"{f.name}__{deeper_f.name}")
+            
+            qs = related_model.objects.all()
+            
+            if term:
+                # deleting all symbols except alphas, digits and whitespaces
+                clean_term = re.sub(r'[^a-zA-Zа-яА-ЯёЁ0-9\s]', '', term)
+                words = clean_term.split()
+                
+                q_objects = Q()
+                for word in words:
+                    if len(word) < 2:
+                        continue 
+                    
+                    word_q = Q()
+                    for sf in search_fields:
+                        word_q |= Q(**{f'{sf}__icontains': word})
+                    q_objects &= word_q 
+                
+                qs = qs.filter(q_objects)
+            
+            results = [{'id': str(obj.pk), 'text': str(obj)} for obj in qs[:20]]
+            return JsonResponse({'results': results})
+            
+        else:
+            queryset = model.objects.exclude(**{f'{field_name}__isnull': True})
+            queryset = queryset.exclude(**{f'{field_name}__exact': ''})
+            
+            if term:
+                queryset = queryset.filter(**{f'{field_name}__icontains': term})
+            
+            values = queryset.values_list(field_name, flat=True).distinct()[:20]
+            results = [{'id': str(val), 'text': str(val)} for val in values if val]
+            return JsonResponse({'results': results})
+            
     except Exception as e:
+        print(f"Autocomplete error: {e}")
+        import traceback
+        traceback.print_exc()
         return JsonResponse({'error': str(e), 'results': []}, status=400)
-    
+
 def get_field_choices(field):
     choices = []
     
@@ -162,44 +205,109 @@ def get_field_type(field):
         return 'text'
     return 'default'
 
+@staff_member_required
+def get_all_objects(request, app_label=None, model_name=None, *args, **kwargs):
+    """Возвращает все объекты модели для клиентского поиска"""
+    # if arguments from kwargs paramenter
+    if app_label is None:
+        app_label = kwargs.get('app_label')
+    if model_name is None:
+        model_name = kwargs.get('model_name')
+    
+    if not app_label or not model_name:
+        return JsonResponse({'error': 'app_label и model_name обязательны'}, status=400)
+    
+    try:
+        model = apps.get_model(app_label, model_name)
+        admin_class = admin.site._registry.get(model)
+        if not admin_class:
+            return JsonResponse({'error': 'Admin not registered'}, status=400)
+        
+        list_display = [f for f in admin_class.list_display if f != 'action_checkbox']
+        
+        field_info = {}
+        for field_name in list_display:
+            try:
+                field = model._meta.get_field(field_name)
+                field_info[field_name] = {
+                    'type': get_field_type(field),
+                    'name': field_name,
+                    'choices': get_field_choices(field),
+                    'verbose_name': field.verbose_name or field_name,
+                    'editable': field.editable,
+                }
+            except Exception:
+                field_info[field_name] = {'type': 'default', 'name': field_name, 'choices': [], 'editable': True}
+        
+        objects_data = []
+        for obj in model.objects.all():
+            obj_data = {'pk': obj.pk}
+            for field_name in list_display:
+                try:
+                    value = getattr(obj, field_name)
+                    if value and hasattr(value, 'pk'):
+                        obj_data[field_name] = {
+                            'pk': value.pk,
+                            'text': str(value)
+                        }
+                    elif isinstance(value, bool):
+                        obj_data[field_name] = value
+                    else:
+                        obj_data[field_name] = str(value) if value is not None else ''
+                except Exception as e:
+                    print(f"Error getting {field_name} for {obj.pk}: {e}")
+                    obj_data[field_name] = ''
+            
+            objects_data.append(obj_data)
+        
+        return JsonResponse({
+            'success': True,
+            'data': objects_data,
+            'list_display': list_display,
+            'field_info': field_info,
+            'total': len(objects_data)
+        })
+        
+    except Exception as e:
+        print(f"get_all_objects error: {e}")
+        return JsonResponse({'error': str(e), 'success': False}, status=500)
+    
 class BaseModelAdminMixin:
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}
         extra_context['app_list'] = site.get_app_list(request)
         response = super().changelist_view(request, extra_context)
         
-        model = self.model
-        field_info = {}
-        
-        for field_name in self.list_display:
-            try:
-                field = model._meta.get_field(field_name)
-                field_type = get_field_type(field)
-                
-                field_info[field_name] = {
-                    'type': field_type,
-                    'name': field_name,
-                    'choices': get_field_choices(field),
-                    'verbose_name': field.verbose_name or field_name,
-                    'editable': field.editable,
-                }
-            except Exception as e:
-                field_info[field_name] = {
-                    'type': 'default',
-                    'name': field_name,
-                    'choices': [],
-                    'verbose_name': field_name.replace('_', ' ').title(),
-                    'editable': True,
-                }
-        
-        response.context_data['field_info'] = field_info
-        response.context_data['model_meta'] = {
-            'app_label': model._meta.app_label,
-            'model_name': model._meta.model_name,
-        }
+        if isinstance(response, TemplateResponse):
+            model = self.model
+            field_info = {}
+            for field_name in self.list_display:
+                try:
+                    field = model._meta.get_field(field_name)
+                    field_info[field_name] = {
+                        'type': get_field_type(field),
+                        'name': field_name,
+                        'choices': get_field_choices(field),
+                        'verbose_name': field.verbose_name or field_name,
+                        'editable': field.editable,
+                    }
+                except Exception:
+                    field_info[field_name] = {
+                        'type': 'default',
+                        'name': field_name,
+                        'choices': [],
+                        'verbose_name': field_name.replace('_', ' ').title(),
+                        'editable': True,
+                    }
+
+            response.context_data['field_info'] = field_info
+            response.context_data['model_meta'] = {
+                'app_label': model._meta.app_label,
+                'model_name': model._meta.model_name,
+            }
         
         return response
-    
+
 admin.site.site_header = _("Отредактировать расписание")
 admin.site.index_title = ""
 

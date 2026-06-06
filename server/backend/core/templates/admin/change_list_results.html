@@ -70,33 +70,20 @@
               data-model-name="{{ model_meta.model_name }}"
               data-editable="{{ info.editable|default:True }}">
             <div class="cell-editor">
-              
-                {% if info.type == 'foreignkey' or info.type == 'choices' %}
-                    <div class="select-wrapper" style="display: flex; align-items: center; gap: 8px; width: 100%;">
                       
                 {% if info.type == 'foreignkey' %}
-                    <select class="cell-select {% if not info.editable %}not-editable{% endif %}" 
-                            data-original-value="{{ raw_value.pk|default:raw_value }}" 
-                            style="flex: 1;" 
-                            disabled>
-                        <option value="">-</option>
-                        {% for option in info.choices %}
-                            <option value="{{ option.value }}" 
-                                {% if option.value|stringformat:"s" == raw_value.pk|stringformat:"s" %}selected{% endif %}>
-                                {{ option.label }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                    {% if info.editable %}
-                      <button type="button" class="edit-icon-btn" title="Редактировать">
-                        <svg width="42" height="24" viewBox="0 0 42 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M1.5 1.5L20.5199 22.5L39.5399 1.50002" stroke="#818BA0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                      </button>
-                    {% endif %}
+                <input type="text" class="cell-input cell-foreignkey" 
+                      value="{{ raw_value|default:'' }}" 
+                      data-original-pk="{{ raw_value.pk|default:'' }}"
+                      data-field-name="{{ field_name }}"
+                      autocomplete="off" />
+                {% if info.editable %}
+                  <button type="button" class="edit-icon-btn" title="Редактировать">
+                    <svg width="26" height="25" viewBox="0 0 26 25"><path d="M3.95 23.3L0.75 24.25L1.7 21.13L3.95 23.3ZM24.32 3.32L6.52 21.2L3.91 18.55L21.68 0.71L24.32 3.32Z" fill="#818BA0"/></svg>
+                  </button>
                 {% endif %}
 
-                {% if info.type == 'choices' %}
+                {% elif info.type == 'choices' %}
                     <select class="cell-select {% if not info.editable %}not-editable{% endif %}" 
                             data-original-value="{{ raw_value }}" 
                             style="flex: 1;" 
@@ -116,7 +103,6 @@
                         </svg>
                       </button>
                     {% endif %}
-                {% endif %}
               
               {% elif info.type == 'boolean' %}
                 <label class="cell-boolean-wrapper {% if not info.editable %}not-editable{% endif %}">

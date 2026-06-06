@@ -27,55 +27,61 @@ class Faculty_Teachers(models.Model):
     patronymic = models.TextField(verbose_name="Отчество", null=True, max_length=255, editable=True, blank=True, help_text="Отчество преподавателя (если есть)")
 
     def __str__(self):
-       return f"[id: {self.pk}] {self.surname} {self.name} {self.patronymic if self.patronymic else ''} ({self.faculty})"
+       return f"{self.surname} {self.name} {self.patronymic if self.patronymic else ''} ({self.faculty})"
 
     class Meta:
         verbose_name = "Преподаватель"
         verbose_name_plural = "Преподаватели"
-
+        constraints = [
+            models.UniqueConstraint(
+                fields=['surname', 'name', 'patronymic', 'faculty'],
+                name='unique_teacher_per_faculty'
+            )
+        ]
 
 class Lessons(models.Model):
     LESSON_TYPES = [
-        (0, "Практика"),
-        (1, "Лекция"),
-        (2, "Лабораторная"),
+        (1, "Практика"),
+        (2, "Лекция"),
+        (3, "Лабораторная"),
     ]
 
     name = models.TextField(verbose_name="Название", editable=True, max_length = 400, help_text="Название пары")
     assignment = models.ForeignKey(Faculty_Teachers, verbose_name="Назначен", editable=True, null=True, blank=True, on_delete=models.RESTRICT, help_text="Прикрепляется запись преподаватель-факультет для этой пары")
-    lesson_type = models.SmallIntegerField(verbose_name="Тип", editable=True, choices=LESSON_TYPES, default=0, help_text="Практика, лекция или лабораторная")
+    lesson_type = models.SmallIntegerField(verbose_name="Тип", editable=True, choices=LESSON_TYPES, default=1, help_text="Практика, лекция или лабораторная")
 
     def __str__(self):
         assignment_str = str(self.assignment) if self.assignment else 'не назначен'
-        return f"[id: {self.pk}] {self.name}, {assignment_str}"
+        return f"{self.name}, {assignment_str}, {self.get_lesson_type_display()}"
     
     class Meta:
+        ordering = ('name',)
         verbose_name = "Пара"
         verbose_name_plural = "Пары"
 
 
 class Groups(models.Model):
     GROUPS_TYPES = [
-        (0, "Бакалавриат"),
-        (1, "Специалитет"),
-        (2, "Магистратура"),
-        (3, "Аспирантура"),
+        (1, "Бакалавриат"),
+        (2, "Специалитет"),
+        (3, "Магистратура"),
+        (4, "Аспирантура"),
     ]
 
     EDU_FORMS = [
-        (0, "Очное"),
-        (1, "Заочное"),
-        (2, "Очно-заочное"),
-        (3, "Вечернее")
+        (1, "Очное"),
+        (2, "Заочное"),
+        (3, "Очно-заочное"),
+        (4, "Вечернее")
     ]
 
     number = models.IntegerField(verbose_name="Номер", editable=True, help_text="Номер группы")
     faculty = models.ForeignKey(Faculties, verbose_name="Факультет", editable=True, on_delete=models.RESTRICT)
-    group_type = models.SmallIntegerField(verbose_name="Вид", editable=True, choices=GROUPS_TYPES, default=0, blank=True, help_text="Бакалавриат, специалитет, магистратура или аспирантура") # возможно будет удалено в окончательной версии
-    form = models.SmallIntegerField(verbose_name="Форма", editable=True, choices=EDU_FORMS, default=0, blank=True, help_text="Очное, заочное, очно-заочное или вечернее") # возможно будет удалено в окончательной версии
+    group_type = models.SmallIntegerField(verbose_name="Вид", editable=True, choices=GROUPS_TYPES, default=1, blank=True, help_text="Бакалавриат, специалитет, магистратура или аспирантура")
+    form = models.SmallIntegerField(verbose_name="Форма", editable=True, choices=EDU_FORMS, default=1, blank=True, help_text="Очное, заочное, очно-заочное или вечернее")
 
     def __str__(self):
-        return f"[id: {self.pk}] Группа {self.number} {self.faculty} {self.group_type} {self.form}"
+            return f"Группа {self.number} {self.faculty} {self.get_group_type_display()} {self.get_form_display()}"
     
     class Meta:
         verbose_name = "Группа"
@@ -92,18 +98,24 @@ class Groups_Schedule(models.Model):
     lesson = models.ForeignKey(Lessons, editable=True, verbose_name="Пара", on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"[id: {self.pk}] {self.group} {self.lesson}"
+        return f"{self.group} {self.lesson}"
     
     class Meta:
         verbose_name = "Пара по группам"
         verbose_name_plural = "Пары по группам"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['group', 'lesson'],
+                name='unique_lesson_per_group'
+            )
+        ]
     
 
 class Auditorium_Types(models.Model):
     name = models.TextField(verbose_name="Тип", editable=False, max_length = 255, help_text="Название типа")
 
     def __str__(self):
-        return f"[id: {self.pk}] {self.name}"
+        return f"{self.name}"
     
     class Meta:
         verbose_name = "Вид аудиторий"
@@ -167,7 +179,7 @@ class Lessons_Schedule(models.Model):
     parity = models.BooleanField(verbose_name="Чётность", choices=LESSON_PARITY, null=True, default=None, blank=True, help_text="Числитель или знаменатель")
     comment = models.TextField(verbose_name="Комментарий", max_length=255, null=True, default=None, blank=True, help_text="Комментарий от диспетчера")
     def __str__(self):
-        return f"[id: {self.pk}] {self.week_day} {self.time} {self.lesson}, комната {self.auditorium}, для {f'{self.subgroup} подгруппы' if self.subgroup else 'всей группы'}, {self.type}, {self.parity if self.parity else ''}"
+        return f"{self.week_day} {self.time} {self.lesson}, комната {self.auditorium}, для {f'{self.subgroup} подгруппы' if self.subgroup else 'всей группы'}, {self.type}, {self.parity if self.parity else ''}"
     
     class Meta:
         verbose_name = "Пункт расписания"
