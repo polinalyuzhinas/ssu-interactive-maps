@@ -42,6 +42,36 @@ async function saveValue(cell, fieldName, value) {
         return false;
     }
 
+    // bridge to "add new constraint" page
+    if (pk === 'add') {
+        let valueToSave = value;
+        
+        if (input.classList.contains('cell-foreignkey')) {
+            valueToSave = input.dataset.selectedPk || value;
+        } else if (input.classList.contains('cell-boolean')) {
+            valueToSave = input.checked ? 'True' : 'False';
+        }
+        
+        const originalWidget = cell.querySelector(`[name="${fieldName}"]`);
+        if (originalWidget) {
+            if (originalWidget.type === 'checkbox') {
+                originalWidget.checked = String(valueToSave) === 'True' || valueToSave === true;
+            } else {
+                originalWidget.value = valueToSave;
+            }
+        }
+        
+        input.dataset.originalValue = valueToSave;
+        if (input.classList.contains('cell-foreignkey')) {
+            input.dataset.originalPk = valueToSave;
+            input.dataset.originalText = input.value;
+            delete input.dataset.selectedPk;
+        }
+        
+        showNotification('Сохранено', 'success');
+        return true;
+    }
+
     let valueToSave = value;
     if (input.classList.contains('cell-foreignkey')) {
         const finalValue = input.dataset.selectedPk || input.dataset.originalValue;

@@ -21,7 +21,7 @@ class Faculties(models.Model):
 
 
 class Faculty_Teachers(models.Model):
-    faculty = models.ForeignKey(Faculties, verbose_name="Факультет", editable=True, on_delete=models.RESTRICT, null=True, blank=True)
+    faculty = models.ForeignKey(Faculties, verbose_name="Факультет", editable=True, on_delete=models.RESTRICT, null=True, blank=True, help_text="Выберите из существующих")
     surname = models.TextField(verbose_name="Фамилия", max_length=255, editable=True, help_text="Фамилия преподавателя")
     name = models.TextField(verbose_name="Имя",max_length=255, editable=True, help_text="Имя преподавателя")
     patronymic = models.TextField(verbose_name="Отчество", null=True, max_length=255, editable=True, blank=True, help_text="Отчество преподавателя (если есть)")
@@ -75,8 +75,8 @@ class Groups(models.Model):
         (4, "Вечернее")
     ]
 
-    number = models.IntegerField(verbose_name="Номер", editable=True, help_text="Номер группы")
-    faculty = models.ForeignKey(Faculties, verbose_name="Факультет", editable=True, on_delete=models.RESTRICT)
+    number = models.IntegerField(verbose_name="Номер", editable=True, help_text="Обычно трёхзначное число")
+    faculty = models.ForeignKey(Faculties, verbose_name="Факультет", editable=True, on_delete=models.RESTRICT, help_text="Выберите их существующих")
     group_type = models.SmallIntegerField(verbose_name="Вид", editable=True, choices=GROUPS_TYPES, default=1, blank=True, help_text="Бакалавриат, специалитет, магистратура или аспирантура")
     form = models.SmallIntegerField(verbose_name="Форма", editable=True, choices=EDU_FORMS, default=1, blank=True, help_text="Очное, заочное, очно-заочное или вечернее")
 
@@ -84,6 +84,7 @@ class Groups(models.Model):
             return f"Группа {self.number} {self.faculty} {self.get_group_type_display()} {self.get_form_display()}"
     
     class Meta:
+        ordering = ('number',)
         verbose_name = "Группа"
         verbose_name_plural = "Группы"
         constraints = [
@@ -94,8 +95,8 @@ class Groups(models.Model):
         ]
 
 class Groups_Schedule(models.Model):
-    group = models.ForeignKey(Groups, editable=True, verbose_name="Группа", on_delete=models.CASCADE)
-    lesson = models.ForeignKey(Lessons, editable=True, verbose_name="Пара", on_delete=models.CASCADE)
+    group = models.ForeignKey(Groups, editable=True, verbose_name="Группа", on_delete=models.CASCADE, help_text="Обычно трёхзначное число")
+    lesson = models.ForeignKey(Lessons, editable=True, verbose_name="Пара", on_delete=models.CASCADE, help_text="Обычно трёхзначное число")
 
     def __str__(self):
         return f"{self.group} {self.lesson}"
@@ -126,13 +127,32 @@ class Auditoriums(models.Model):
     number = models.IntegerField(verbose_name="Номер", primary_key=True, editable=False, help_text="Номер аудитории")
     description = models.TextField(verbose_name="Описание", default='', editable=True, null=True, blank=True, help_text="Описание аудитории (например, особое название, в честь кого она была названа)")
     floor = models.SmallIntegerField(verbose_name="Этаж", editable=False, validators=[MinValueValidator(1),MaxValueValidator(7),], help_text="Номер этажа")
-    auditorium_type = models.ForeignKey(Auditorium_Types, verbose_name="Тип", editable=True, on_delete=models.SET_NULL, null=True, blank=True)
+    auditorium_type = models.ForeignKey(Auditorium_Types, verbose_name="Тип", editable=True, on_delete=models.SET_NULL, null=True, blank=True, help_text="Лекционная аудитория, компьютерных класс и т.п.")
     have_lessons = models.BooleanField(verbose_name="Пары?", default=False, editable=False, help_text="Проводятся ли пары в аудитории") # это поле недоступно для ввода (меняют только триггеры)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self._update_auditorium_status()
+
+    def delete(self, *args, **kwargs):
+        auditorium = self.auditorium
+        super().delete(*args, **kwargs)
+        if auditorium:
+            self._update_auditorium_status(auditorium)
+
+    def _update_auditorium_status(self, auditorium=None):
+        aud = auditorium or self.auditorium
+        if aud:
+            has_lessons = Lessons_Schedule.objects.filter(auditorium=aud).exists()
+            if aud.have_lessons != has_lessons:
+                aud.have_lessons = has_lessons
+                aud.save(update_fields=['have_lessons'])
 
     def __str__(self):
         return f"{self.number}, этаж {self.floor}, {self.auditorium_type if self.auditorium_type else ''}, пары {'' if self.have_lessons else 'не'} проводятся"
     
     class Meta:
+        ordering = ('number',)
         verbose_name = "Аудитория"
         verbose_name_plural = "Аудитории"
 
@@ -155,9 +175,9 @@ class Lessons_Schedule(models.Model):
     ]
 
     LESSON_PARITY = [
-        (None, "-"),
-        (True, "Числитель"),
-        (False, "Знаменатель"),
+        (1, "-"),
+        (2, "Числитель"),
+        (3, "Знаменатель"),
     ]
 
     LESSON_TIME = [
@@ -171,15 +191,16 @@ class Lessons_Schedule(models.Model):
         (8, "20:10-21:30")
     ]
 
-    lesson = models.ForeignKey(Lessons, verbose_name="Пара", on_delete=models.RESTRICT)
-    auditorium = models.ForeignKey(Auditoriums, verbose_name="Аудитория", on_delete=models.SET_NULL, null=True)
+    lesson = models.ForeignKey(Groups_Schedule, verbose_name="Пара", on_delete=models.RESTRICT, help_text="Запись Пара-Группа")
+    auditorium = models.ForeignKey(Auditoriums, verbose_name="Аудитория", on_delete=models.SET_NULL, null=True, help_text="Аудитория, в которой пара проводится")
     subgroup = models.SmallIntegerField(verbose_name="Подгруппа", null=True, choices=SUBGROUP_VARIANTS, default=None, blank=True, help_text="Подгруппа")
     week_day = models.SmallIntegerField(verbose_name="День недели", choices=DAYS_ON_WEEK, default="1", help_text="Номер дня недели")
     time = models.SmallIntegerField(verbose_name="Время", choices=LESSON_TIME, help_text="Номер пары")
-    parity = models.BooleanField(verbose_name="Чётность", choices=LESSON_PARITY, null=True, default=None, blank=True, help_text="Числитель или знаменатель")
+    parity = models.SmallIntegerField(verbose_name="Чётность", choices=LESSON_PARITY, null=True, default=None, blank=True, help_text="Числитель или знаменатель")
     comment = models.TextField(verbose_name="Комментарий", max_length=255, null=True, default=None, blank=True, help_text="Комментарий от диспетчера")
+    
     def __str__(self):
-        return f"{self.week_day} {self.time} {self.lesson}, комната {self.auditorium}, для {f'{self.subgroup} подгруппы' if self.subgroup else 'всей группы'}, {self.type}, {self.parity if self.parity else ''}"
+        return f"{self.week_day} {self.time} {self.lesson}, комната {self.auditorium}, для {f'{self.subgroup} подгруппы' if self.subgroup else 'всей группы'}, {self.time}, {self.parity}"
     
     class Meta:
         verbose_name = "Пункт расписания"

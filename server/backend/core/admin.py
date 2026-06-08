@@ -11,6 +11,7 @@ from django.apps import apps
 from django.views.decorators.http import require_http_methods
 from django.template.response import TemplateResponse
 from django.db.models import Q
+from django import forms
 
 @staff_member_required
 @require_http_methods(["POST"])
@@ -277,7 +278,7 @@ class BaseModelAdminMixin:
         extra_context = extra_context or {}
         extra_context['app_list'] = site.get_app_list(request)
         response = super().changelist_view(request, extra_context)
-        
+
         if isinstance(response, TemplateResponse):
             model = self.model
             field_info = {}
@@ -349,5 +350,28 @@ class GroupsScheduleAdmin(BaseModelAdminMixin, admin.ModelAdmin):
 
 @admin.register(Lessons_Schedule)
 class LessonsScheduleAdmin(BaseModelAdminMixin, admin.ModelAdmin):
-    list_display = ('lesson', 'auditorium', 'subgroup', 'week_day', 'time', 'parity')
+    list_display = ('lesson', 'auditorium', 'subgroup', 'week_day', 'time', 'parity', 'comment')
     list_per_page = 10
+
+
+original_get_app_list = admin.site.get_app_list
+
+def custom_get_app_list(request, app_label=None):
+    app_list = original_get_app_list(request, app_label)
+    
+    filtered_app_list = []
+    for app in app_list:
+        filtered_models = []
+        for model in app['models']:
+            # filtering User и Group deafault Django models from app_list
+            if app['app_label'] == 'auth' and model['object_name'] in ['User', 'Group']:
+                continue
+            filtered_models.append(model)
+        
+        if filtered_models:
+            app['models'] = filtered_models
+            filtered_app_list.append(app)
+            
+    return filtered_app_list
+
+admin.site.get_app_list = custom_get_app_list
