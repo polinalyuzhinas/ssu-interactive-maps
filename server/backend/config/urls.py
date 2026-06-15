@@ -20,6 +20,7 @@ from django.shortcuts import redirect
 from django.conf import settings
 from django.views.static import serve
 from core import admin as core_admin
+from core.views import get_filter_options, get_auditorium_schedule
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -35,4 +36,12 @@ urlpatterns = [
     path('api/get-all/<str:app_label>/<str:model_name>/', 
      core_admin.get_all_objects, 
      name='api_get_all_objects'),
+
+    path('api/filters/',
+        get_filter_options,
+        name='filter_options'),
+    
+    path('api/schedule/<int:auditorium_number>/',
+        get_auditorium_schedule,
+        name='auditorium_schedule'),
 ]

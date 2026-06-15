@@ -1,4 +1,4 @@
-import Map from 'ol/Map.js';
+import OLMap from 'ol/Map.js';
 import View from 'ol/View.js';
 import ImageLayer from 'ol/layer/Image.js';
 import StaticImage from 'ol/source/ImageStatic.js';
@@ -30,7 +30,7 @@ const proj = new Projection({
     extent: imageExtent
 });
 
-const vectorSource = new VectorSource(); // векторный источник
+const vectorSource = new VectorSource();
 
 // cоздание векторного слоя
 const vectorLayer = new VectorLayer({
@@ -40,7 +40,6 @@ const vectorLayer = new VectorLayer({
   }
 });
 
-// cоздание стилей
 const defaultStyle = new Style({ // стиль по умолчанию
     fill: new Fill({
         color: 'rgba(255, 255, 255, 0.01)'
@@ -53,26 +52,90 @@ fill: new Fill({
 })
 });
 
-const polygonFeatures = new Map(); // cловарь для хранения полигонов
+const polygonFeatures = new Map();
+const scheduleCache = new Map();
+let openModal = null;
 
-function template_polygon_feature(coordinates, description, featureID, schedule=[]) { // создает объект OpenLayers Feature по координатам, описанию и ID и сохраняет его в словаре
+let currentFilters = {};
+let currentFloor = null;
+
+function extractAuditoriumNumber(description) {
+    const match = description.match(/^(\d+)/);
+    return match ? match[1] : null;
+}
+
+// функция для загрузки расписания с API
+async function fetchSchedule(auditoriumNumber) {
+    if (!auditoriumNumber) return [];
+    
+    if (scheduleCache.has(auditoriumNumber)) {
+        return scheduleCache.get(auditoriumNumber);
+    }
+    
+    try {
+        const response = await fetch(`/api/schedule/${auditoriumNumber}/`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const data = await response.json();
+        const schedule = data.schedule || [];
+        
+        scheduleCache.set(auditoriumNumber, schedule);
+        return schedule;
+    } catch (error) {
+        console.error('Ошибка загрузки расписания:', error);
+        return [];
+    }
+}
+
+// загрузка глобальных фильтров при старте
+async function loadFilterOptions(floor) {
+    try {
+        const response = await fetch(`/api/filters/?floor=${floor}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const data = await response.json();
+        if (!data.success) throw new Error(data.error);
+        
+        return data.options || {};
+    } catch (error) {
+        console.error('Ошибка загрузки фильтров:', error);
+        return {};
+    }
+}
+
+function template_polygon_feature(coordinates, description, featureID) {
     const feature = new Feature({
         geometry: new Polygon(coordinates)
     });
-    feature.set('description', description); // надпись при наведении на выделении курсора
-    feature.set('schedule', schedule); // расписание (если есть)
-    feature.setStyle(defaultStyle); // стиль по умолчанию
-    vectorSource.addFeature(feature); // добавляем в векторный слой
-    polygonFeatures.set(featureID, feature); // добавляем полигон в словарь, чтобы потом к нему обращаться
+    feature.set('description', description);
+    feature.setStyle(defaultStyle);
+    vectorSource.addFeature(feature);
+    polygonFeatures.set(featureID, feature);
+}
+
+function filterSchedule(schedule, filters) {
+    if (!schedule || schedule.length === 0) return [];
+    return schedule.filter(item => {
+        for (const filterName in filters) {
+            const filterValue = filters[filterName];
+            const itemValue = item[filterName];
+            if (Array.isArray(itemValue)) {
+                if (!itemValue.includes(filterValue)) return false;
+            } else {
+                if (itemValue !== filterValue) return false;
+            }
+        }
+        return true;
+    });
 }
 
 function create_popup() {
-    const popup = new Overlay({ // всплывающая надпись
-        element: document.createElement('div'),  // создаем div-элемент для Popup
+    const popup = new Overlay({
+        element: document.createElement('div'),
         autoPan: true,
     });
 
-    popup.getElement().className = 'ol-popup'; // добавляем класс для стилизации (в CSS)
+    popup.getElement().className = 'ol-popup';
 
     return popup;
 }
@@ -88,15 +151,15 @@ function create_map(image_url) {
 
     const initialCenter = [imageWidth / 2, imageHeight / 2];
 
-    const map = new Map({
+    const map = new OLMap({
     target: "map",
         layers: [imageLayer, vectorLayer],
         view: new View({
             projection: proj,
             center: initialCenter,
             zoom: 0, // начальный зум
-            minZoom: 0.98, // минимальный зум
-            maxZoom: 4, // максимальный зум
+            minZoom: 0.98,
+            maxZoom: 4,
         }),
     });
 
@@ -108,7 +171,6 @@ function create_map(image_url) {
 // обработчик события наведения курсора мыши
 function pointermove(map, defaultStyle, highlightStyle, popup) {
     
-    // состояние для хранения текущего выделенного объекта
     let highlightedFeature = null;
 
     map.on('pointermove', function (evt) {
@@ -119,264 +181,238 @@ function pointermove(map, defaultStyle, highlightStyle, popup) {
         const pixel = map.getEventPixel(evt.originalEvent);
         map.getTargetElement().style.cursor = map.hasFeatureAtPixel(pixel) ? 'pointer' : '';
 
-        // получаем все объекты под курсором в массив
         const features = [];
         map.forEachFeatureAtPixel(pixel, function (feature) {
             features.push(feature);
         });
 
-        // сбрасываем стиль с предыдущего выделенного объекта (если есть)
         if (highlightedFeature && !features.includes(highlightedFeature)) {
             highlightedFeature.setStyle(defaultStyle);
             highlightedFeature = null;
         }
 
-        // выделяем все объекты, на которые наведен курсор
-        let featureToShowPopup = null; // объект, для которого нужно показать Popup
+        let featureToShowPopup = null;
         features.forEach(feature => {
             if (feature) {
-                feature.setStyle(highlightStyle); // применяем стиль выделения
-                highlightedFeature = feature; //  запоминаем последний выделенный объект
-                featureToShowPopup = feature; // запоминаем объект для отображения Popup
+                feature.setStyle(highlightStyle);
+                highlightedFeature = feature;
+                featureToShowPopup = feature;
             }
         });
 
-        // отображаем Popup (если есть объект под курсором)
         if (featureToShowPopup) {
-            // получаем координаты объекта
-            const coordinate = evt.coordinate; // координаты курсора
-            popup.getElement().innerHTML = featureToShowPopup.get('description'); // устанавливаем текст для Popup
-            popup.setPosition(coordinate); // позиционируем Popup рядом с курсором
+            const coordinate = evt.coordinate;
+            popup.getElement().innerHTML = featureToShowPopup.get('description');
+            popup.setPosition(coordinate);
         } else {
-            // если курсор не на объекте, скрываем Popup
             popup.setPosition(undefined);
         }
     });
 }
 
-let openModal = null; // глобальная переменная для отслеживания открытого расписания
-
-function click(map, get_filters, showScheduleModal) {
-    map.on('click', function (evt) {
-        const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) { return feature; });
-
-        if (feature) {
-            const description = feature.get('description');
-            const schedule = feature.get('schedule');
-	        const id = feature.get('featureID');
-
-            // закрываем текущее открытое модальное окно, если оно есть
-            if (openModal) {
-                document.body.removeChild(openModal);
-                openModal = null; // сбрасываем openModal после закрытия
+function click(map, showScheduleModal) {
+    map.on('click', async function (evt) {
+        const feature = map.forEachFeatureAtPixel(evt.pixel, f => f);
+        if (!feature) return;
+        
+        const description = feature.get('description');
+        const id = feature.get('featureID');
+        
+        if (openModal) {
+            document.body.removeChild(openModal);
+            openModal = null;
+        }
+        
+        const loadingModal = document.createElement('div');
+        loadingModal.className = 'loading-modal';
+        loadingModal.innerHTML = `<div class="modal-content"><p>Загрузка расписания...</p></div>`;
+        document.body.appendChild(loadingModal);
+        
+        try {
+            const auditoriumNumber = extractAuditoriumNumber(description);
+            
+            if (!auditoriumNumber) {
+                document.body.removeChild(loadingModal);
+                openModal = showScheduleModal(description, [], id, currentFilters);
+                return;
             }
+            
+            // загружаем расписание с API
+            const schedule = await fetchSchedule(auditoriumNumber);
+            document.body.removeChild(loadingModal);
+            
+            // модальное окно с учётом текущих фильтров
+            openModal = showScheduleModal(description, schedule, id, currentFilters);
+        } catch (error) {
+            console.error('Ошибка:', error);
+            if (loadingModal.parentNode) document.body.removeChild(loadingModal);
+            openModal = showScheduleModal(description, [], id, currentFilters);
+        }
+    });
+}
 
-            openModal = showScheduleModal(description, schedule, id, get_filters()); // передаём все фильтры в функцию
+function populateFilterForm(options) {
+    const fields = ['department', 'group', 'subgroup', 'teacher', 'lesson', 'type', 'parity'];
+    const labels = {
+        department: 'Факультет',
+        group: 'Группа',
+        subgroup: 'Подгруппа',
+        teacher: 'Преподаватель',
+        lesson: 'Предмет',
+        type: 'Тип',
+        parity: 'Чётность'
+    };
+    
+    fields.forEach(field => {
+        const select = document.getElementById(`filter-${field}`);
+        if (!select) return;
+        
+        select.innerHTML = `<option value="">${labels[field]}</option>`;
+        (options[field] || []).forEach(val => {
+            const opt = document.createElement('option');
+            opt.value = val;
+            opt.textContent = val;
+            select.appendChild(opt);
+        });
+    });
+}
+
+// установка значений в фильтрах (берутся из расписания по этажу)
+async function setupGlobalFilters(floor) {
+    currentFloor = floor;
+    
+    const options = await loadFilterOptions(floor);
+    populateFilterForm(options);
+    
+    const fields = ['department', 'group', 'subgroup', 'teacher', 'lesson', 'type', 'parity'];
+    
+    fields.forEach(field => {
+        const select = document.getElementById(`filter-${field}`);
+        if (select) {
+            select.addEventListener('change', () => {
+                const val = select.value;
+                if (val) currentFilters[field] = val;
+                else delete currentFilters[field];
+                
+                const applyBtn = document.getElementById('apply-filters');
+                if (applyBtn) applyBtn.disabled = Object.keys(currentFilters).length === 0;
+            });
+        }
+    });
+    
+    // кнопка "Применить" - пересоздаёт открытое модальное окно с новыми фильтрами
+    document.getElementById('apply-filters')?.addEventListener('click', () => {
+        if (openModal) {
+            const id = openModal.id?.replace('schedule-modal-', '');
+            const description = openModal.querySelector('h1')?.textContent?.replace('Расписание аудитории', '').trim();
+            const cachedSchedule = scheduleCache.get(id) || [];
+            
+            document.body.removeChild(openModal);
+            openModal = show_schedule(description, cachedSchedule, id, currentFilters);
+        }
+    });
+    
+    // кнопка "Сбросить" - очищает фильтры и закрывает модальное окно тут же
+    document.getElementById('reset-filters')?.addEventListener('click', () => {
+        currentFilters = {};
+        fields.forEach(f => {
+            const sel = document.getElementById(`filter-${f}`);
+            if (sel) sel.value = '';
+        });
+        
+        const applyBtn = document.getElementById('apply-filters');
+        if (applyBtn) applyBtn.disabled = true;
+        
+        if (openModal) {
+            document.body.removeChild(openModal);
+            openModal = null;
         }
     });
 }
 
 function show_schedule(description, schedule, id, filters = {}) {
     const modal = document.createElement('div');
-    modal.id = `schedule-modal-${id}` 
-
-    const filteredSchedule = filter_features(description, schedule, filters);
-
-    let modalContent = document.createElement('div');
-    if (filteredSchedule && filteredSchedule.length > 0) {
-        let tablesHTML = '';
-
-    const scheduleByDay = {};
-	for (const item of filteredSchedule) {
-    		const day = item.day;
-    		if (!scheduleByDay[day]) {
-        	    scheduleByDay[day] = []; // создаем массив для дня, если его нет
-    		}
-    		scheduleByDay[day].push(item); // добавляем элемент в соответствующий день
-	    }
-
-        // cоздаем таблицу для каждого дня
-        for (const day in scheduleByDay) {
-            tablesHTML += `
-                <div>
-                    <h1>${day}</h1>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>№</th>
-                                <th>Факультет</th>
-                                <th>Группа</th>
-                                <th>Преподаватель</th>
-                                <th>Пара</th>
-                                <th>Тип</th>
-                                <th>Чётность</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${scheduleByDay[day].map(item => `<tr><td>${item.number}</td>
-                                <td>${item.department.join('\n')}</td><td>${item.group.join(', ')}</td>
-                                <td>${item.teacher}</td><td>${item.lesson}</td><td>${item.type}</td>
-                                <td>${item.parity}</td></tr>`).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-        }
-
-        modalContent = `
+    modal.id = `schedule-modal-${id}`;
+    modal.className = 'schedule-modal-wrapper';
+    
+    const filteredSchedule = filterSchedule(schedule, filters);
+    let contentHTML = '';
+    
+    if (!schedule || schedule.length === 0) {
+        contentHTML = `
             <div class="modal-content">
-                <h1>Расписание аудитории <br> ${description}</h1>
-                ${tablesHTML}
-            </div>
-        `;
-    } else {
-        modalContent = `
-            <div class="modal-content">
-                <h1>Расписание аудитории <br> ${description}</h1>
+                <h1>Расписание аудитории<br>${description}</h1>
                 <p>Для данного объекта нет расписания</p>
             </div>
         `;
     }
-
-    modal.innerHTML = modalContent;	
-
+    else if (filteredSchedule.length === 0) {
+        contentHTML = `
+            <div class="modal-content">
+                <h1>Расписание аудитории<br>${description}</h1>
+                <p>Пары с такими фильтрами отсутствуют</p>
+            </div>
+        `;
+    }
+    else {
+        let tablesHTML = '';
+        const scheduleByDay = {};
+        filteredSchedule.forEach(item => {
+            if (!scheduleByDay[item.day]) scheduleByDay[item.day] = [];
+            scheduleByDay[item.day].push(item);
+        });
+        
+        for (const day in scheduleByDay) {
+            tablesHTML += `
+                <div>
+                    <h1>${day}</h1>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>№</th>
+                                    <th>Факультет</th>
+                                    <th>Группа</th>
+                                    <th>Подгруппа</th>
+                                    <th>Преподаватель</th>
+                                    <th>Пара</th>
+                                    <th>Тип</th>
+                                    <th>Чётность</th>
+                                    <th>Комментарий</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${scheduleByDay[day].map(item => `
+                                    <tr>
+                                        <td>${item.number}</td>
+                                        <td>${Array.isArray(item.department) ? item.department.join('<br>') : (item.department || '')}</td>
+                                        <td>${Array.isArray(item.group) ? item.group.join(', ') : (item.group || '')}</td>
+                                        <td>${item.subgroup || 'Вся группа'}</td>
+                                        <td>${item.teacher}</td>
+                                        <td>${item.lesson}</td>
+                                        <td>${item.type}</td>
+                                        <td>${item.parity}</td>
+                                        <td class="comment-cell">${item.comment || ''}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+        
+        contentHTML = `
+            <div class="modal-content">
+                <h1>Расписание аудитории<br>${description}</h1>
+                ${tablesHTML}
+            </div>
+        `;
+    }
+    
+    modal.innerHTML = contentHTML;
     document.body.appendChild(modal);
     return modal;
-}
-
-function fill_filter() { // заполняем всплывающие списки фильтров
-    const filterFields = ['department', 'group', 'teacher', 'lesson', 'type', 'parity'];
-    const allSchedules = [];
-
-    vectorSource.getFeatures().forEach(feature => {
-        const schedule = feature.get('schedule');
-        if (schedule && Array.isArray(schedule)) {
-            schedule.forEach(item => allSchedules.push(item)); // добавляем все расписания в список
-        }
-    });
-
-    filterFields.forEach(field => {
-        const selectElement = document.getElementById(`filter-${field}`);
-        const uniqueValues = new Set();
-
-        allSchedules.forEach(item => {
-            if (item && item[field]) {
-                const fieldValue = item[field];
-
-                // проверяем, является ли значение массивом
-                if (Array.isArray(fieldValue)) {
-                    // если да, то во множество добавляем его каждый элемент
-                    fieldValue.forEach(value => uniqueValues.add(value));
-                } else {
-                    // если нет, то добавляем само значение
-                    uniqueValues.add(fieldValue);
-                }
-            }
-        });
-
-        // преобразуем множество в массив и сортируем
-        const sortedValues = Array.from(uniqueValues).sort();
-
-        sortedValues.forEach(value => { // добавляем во всплывающие списки элементы из множества
-            const option = document.createElement('option');
-            option.value = value;
-            option.textContent = value;
-            selectElement.appendChild(option);
-        });
-    });
-}
-
-function get_filters() {
-    const filters = {};
-
-    // собираем значения фильтров из формы
-    document.querySelectorAll('#filter-form select').forEach(select => {
-        const filterName = select.id.replace('filter-', '');
-        const selectedValue = select.value;
-        if (selectedValue) {
-            filters[filterName] = selectedValue;
-        }
-    });
-
-    return filters;
-}
-
-function filter_features(description, schedule, filters) {
-    if (!schedule || schedule.length == 0) return [];
-
-    return schedule.filter(item => {
-        for (const filterName in filters) {
-            const filterValue = filters[filterName];
-            const itemValue = item[filterName];
-
-            // для всех фильтров проверяем, является ли значение массивом
-            if (Array.isArray(itemValue)) {
-                if (!itemValue.includes(filterValue)) return false;
-            } else {
-                if (itemValue !== filterValue) return false;
-            }
-        }
-        return true;
-    });
-}
-
-function apply_filter(click, show_schedule) { // добавим show_schedule как аргумент
-    const applyFiltersButton = document.getElementById('apply-filters');
-    const filterForm = document.getElementById('filter-form');
-
-    // включаем/выключаем кнопку применения фильтров при изменении фильтров
-    filterForm.addEventListener('change', function () {
-        const selectedFilters = Array.from(filterForm.querySelectorAll('select'))
-            .some(select => select.value != "");
-
-        applyFiltersButton.disabled = !selectedFilters;
-    });
-
-    applyFiltersButton.addEventListener('click', function () {
-        if (get_filters() != "") {
-            applyFiltersButton.disabled = true;
-        }
-        // собираем значения фильтров из формы
-        const filters = get_filters();
-        
-        // находим feature, для которого было открыто расписание
-        let currentFeature = null;
-        vectorSource.getFeatures().forEach(feature => {
-            if (feature.get('description') === click.description) {
-                currentFeature = feature;
-            }
-        });
-
-        // закрываем старое окно
-        if (openModal) {
-            document.body.removeChild(openModal);
-            openModal = null; // сбрасываем переменную openModal
-        }
-
-        // открываем новое отфильтрованное окно
-        if (currentFeature) {
-            const description = currentFeature.get('description');
-            const schedule = currentFeature.get('schedule');
-            openModal = show_schedule(description, schedule, filters);
-        }
-    });
-}
-
-function reset_filters(filter_features) {
-    const applyFiltersButton = document.getElementById('apply-filters');
-    document.getElementById('reset-filters').addEventListener('click', function () { // настройка кнопки сброса фильтров
-        document.querySelectorAll('#filter-form select').forEach(select => {
-            select.value = "";
-        });
-        applyFiltersButton.disabled = true;
-        filter_features({}); // сбрасываем фильтры
-
-        if (openModal) {
-            // закрываем старое окно
-            document.body.removeChild(openModal);
-            openModal = null; // cбрасываем переменную openModal
-        }
-    });
 }
 
 export {
@@ -393,12 +429,8 @@ export {
     imageExtent,
     proj,
     vectorSource,
-    fill_filter,
-    get_filters,
-    filter_features,
-    reset_filters,
     show_schedule,
-    apply_filter,
-    vectorLayer, //  экспортируем vectorLayer, чтобы добавить его на карту
-    openModal
+    vectorLayer,
+    openModal,
+    setupGlobalFilters
 };

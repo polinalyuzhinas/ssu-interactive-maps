@@ -24,7 +24,7 @@ class Faculty_Teachers(models.Model):
     patronymic = models.TextField(verbose_name="Отчество", null=True, max_length=255, editable=True, blank=True, help_text="Отчество преподавателя (если есть)")
 
     def __str__(self):
-       return f"{self.surname} {self.name} {self.patronymic if self.patronymic else ''} ({self.faculty})"
+       return f"{self.surname} {self.name[0]} {self.patronymic[0] if self.patronymic else ''} ({self.faculty})"
 
     model_help_text = "Содержит список записей Преподаватель-Факультет. Один и тот же преподаватель может преподавать на разных факультетах."
 
@@ -158,7 +158,7 @@ class Auditoriums(models.Model):
                 aud.save(update_fields=['have_lessons'])
 
     def __str__(self):
-        return f"{self.number}, {self.description}, этаж {self.floor}, {self.auditorium_type if self.auditorium_type else ''}, пары {'' if self.have_lessons else 'не'} проводятся"
+        return f"{self.number} {self.description} этаж {self.floor}, {self.auditorium_type if self.auditorium_type else ''}, пары {'' if self.have_lessons else 'не'} проводятся"
     
     class Meta:
         ordering = ('number',)
