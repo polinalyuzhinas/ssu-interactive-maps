@@ -1,0 +1,54 @@
+{% load static %}
+
+{% block content_title %}{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'admin/css/base.css' %}">
+<link rel="stylesheet" href="{% static 'admin/css/logout.css' %}">
+{% endblock %}
+
+{% block header %}
+<div id="header">
+  <div id="user-tools">
+    <div class="theme-buttons">
+      <button type="button" class="theme-btn theme-btn-light" data-theme="light" title="Светлая тема">
+        <svg xmlns="http://www.w3.org/2000/svg" width="41" height="41" viewBox="0 0 41 41" fill="none">
+          <path d="M20.2501 28.5C24.8064 28.5 28.5001 24.8064 28.5001 20.25C28.5001 15.6937 24.8064 12 20.2501 12C15.6937 12 12.0001 15.6937 12.0001 20.25C12.0001 24.8064 15.6937 28.5 20.2501 28.5Z" fill="#F5F5F5" stroke="#304D86" stroke-width="2"/>
+          <path d="M20.2499 7.875V1" stroke="#304D86" stroke-width="2" stroke-linecap="round"/>
+          <path d="M20.25 32.625V39.5" stroke="#304D86" stroke-width="2" stroke-linecap="round"/>
+          <path d="M7.875 20.25H1" stroke="#304D86" stroke-width="2" stroke-linecap="round"/>
+          <path d="M32.625 20.25H39.5" stroke="#304D86" stroke-width="2" stroke-linecap="round"/>
+          <path d="M6.63702 6.63751L11.4495 11.45" stroke="#304D86" stroke-width="2" stroke-linecap="round"/>
+          <path d="M33.8624 6.63751L29.0499 11.45" stroke="#304D86" stroke-width="2" stroke-linecap="round"/>
+          <path d="M6.63702 33.8625L11.4495 29.05" stroke="#304D86" stroke-width="2" stroke-linecap="round"/>
+          <path d="M33.8624 33.8625L29.0499 29.05" stroke="#304D86" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      
+      <button type="button" class="theme-btn theme-btn-dark" data-theme="dark" title="Тёмная тема">
+        <svg xmlns="http://www.w3.org/2000/svg" width="43" height="44" viewBox="0 0 43 44" fill="none">
+          <path d="M41.3114 29.3594C23.7602 63.296 -23.2182 26.1861 16.5614 1.00002C16.5614 1.00002 6.60121 19.0176 12.0507 27.2969C16.4627 34 24.2466 37.6094 41.3114 29.3594Z" fill="#F5F5F5" stroke="#541B6C" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- hiding necessary Django elements -->
+    <button class="theme-toggle visually-hidden" aria-hidden="true" style="display:none;"></button>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="logout-container">
+    <div class="logout-card">
+        <h1 class="logout-title">Вы вышли из системы</h1>
+        <span class="thank-you">Благодарим вас за время, проведенное на этом сайте.</span>
+    </div>
+    <button type="button" class="btn-login-again" onclick="window.location.href='{% url 'admin:index' %}'">
+      Войти снова
+    </button>
+</div>
+{% endblock %}

@@ -4,24 +4,51 @@
 {% block extrastyle %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'admin/css/variables.css' %}">
+<link rel="stylesheet" href="{% static 'admin/css/fonts.css' %}">
 <link rel="stylesheet" href="{% static 'admin/css/admin_header.css' %}">
 {% endblock %}
 
 {% block extrahead %}
 {{ block.super }}
-<script src="{% static 'admin/js/theme_toggle.js' %}" defer></script>
+<script>
+  // setting data-theme attribute to root html element before css loading
+  (function() {
+    let savedTheme = sessionStorage.getItem('user-theme');
+    if (!savedTheme) {
+      let prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      savedTheme = prefersDark ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  })();
+</script>
+<script src="{% static 'admin/js/theme.js' %}" defer></script>
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block messages %}
+    {% if messages %}
+        <ul class="messagelist">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+                    {#  striptags for deleting all html tags in messages  #}
+                    {{ message|striptags }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 {% endblock %}
 
 {% block header %}
 <div id="header">
   <div class="header-left">
-    <a href="/" class="back-button" title="На главную">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 12H4M4 12L10 6M4 12L10 18" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <button type="button" class="back-button" title="На главную" onclick="window.location.href='/'">
+      <svg width="71" height="42" viewBox="0 0 71 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M25.5029 5.12988L14.2988 15.6611L12.4502 17.3984L14.9873 17.3896L69.416 17.1992V22.3691L14.6396 22.5596L12.0576 22.5684L13.9717 24.3008L27.6289 36.6621L23.4873 40.6309L5.95508 24.7627L5.26758 24.1406L5.19043 24.2129L3.62793 22.6582L3.61133 22.6416L3.59375 22.625L1.46387 20.6982L1.56348 20.6025L1.4375 20.4775L21.7461 1.39062L25.5029 5.12988Z" fill="#F5F5F5"/>
       </svg>
-    </a>
+    </button>
     <div id="branding">
-      <h1 id="site-name"><a href="{% url 'admin:index' %}">{{title|default:"Редактирование расписания"}}</a></h1>
+      <h1 id="site-name">{{title|default:"Редактирование расписания"}}</h1>
     </div>
   </div>
 
@@ -49,32 +76,19 @@
     </div>
 
     <!-- hiding necessary Django elements -->
-    <button class="theme-toggle" style="display:none;">
-      <div class="visually-hidden theme-label-when-auto">Toggle theme (current theme: auto)</div>
-      <div class="visually-hidden theme-label-when-light">Toggle theme (current theme: light)</div>
-      <div class="visually-hidden theme-label-when-dark">Toggle theme (current theme: dark)</div>
-      <svg aria-hidden="true" class="theme-icon-when-auto">
-        <use xlink:href="#icon-auto"></use>
-      </svg>
-      <svg aria-hidden="true" class="theme-icon-when-dark">
-        <use xlink:href="#icon-moon"></use>
-      </svg>
-      <svg aria-hidden="true" class="theme-icon-when-light">
-        <use xlink:href="#icon-sun"></use>
-      </svg>
-    </button>
+    <button class="theme-toggle visually-hidden" aria-hidden="true" style="display:none;"></button>
 
-    <a href="{% url 'admin:password_change' %}" class="user-profile">
-      <button type="button" disabled class="user-avatar">
+    <div class="user-profile">
+      <button type="button" title="В профиль" onclick="window.location.href='{% url 'admin:password_change' %}'" class="user-avatar">
         <svg width="67" height="74" viewBox="0 0 67 74" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M30.1948 33.0065C15.4953 40.6433 5.81017 43.8006 1.1095 59.4985C1.1095 59.4985 12.0165 72.9616 34.2849 72.9616C52.9177 72.9616 65.6426 60.8013 65.6426 60.8013C63.8247 50.3783 58.8255 42.636 43.8286 36.6288L30.1948 33.0065Z" fill="#F5F5F5" stroke="#304D86" stroke-width="2"/>
           <path d="M33.8304 1C44.2828 1 52.8263 9.84554 52.8265 20.8457C52.8265 31.8461 44.2829 40.6924 33.8304 40.6924C23.378 40.6923 14.8344 31.8461 14.8344 20.8457C14.8346 9.84556 23.3782 1.00004 33.8304 1Z" fill="#F5F5F5" stroke="#304D86" stroke-width="2"/>
         </svg>
       </button>
-      <div class="user-name">
+      <span class="user-name">
         {{ request.user.get_short_name|default:request.user.username|upper }}
-      </div>
-    </a>
+      </span>
+    </div>
   </div>
 </div>
 {% endblock %}

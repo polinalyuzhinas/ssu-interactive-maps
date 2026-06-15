@@ -5,27 +5,24 @@
     height: auto;
 }
 
-.login #header {
-    height: auto;
-    padding: 15px 16px;
-    justify-content: center;
+div#header {
+    background-color: var(--button-text-stroke);
 }
 
-.login #header h1 {
-    font-size: 1.125rem;
-    margin: 0;
+.back-button {
+    display: none;
 }
 
-.login #header h1 a {
-    color: var(--header-link-color);
+#user-tools {
+    display: none;
 }
 
-.login #content {
-    padding: 20px 20px 0;
+#branding {
+    margin: 0 auto;
 }
 
 .login #container {
-    background: var(--body-bg);
+    background: var(--bg);
     border: 1px solid var(--hairline-color);
     border-radius: 4px;
     overflow: hidden;
@@ -51,11 +48,39 @@
 }
 
 .login .submit-row {
-    padding: 1em 0 0 0;
+    padding: 20px 0 0 0;
     margin: 0;
     text-align: center;
 }
 
 .login .password-reset-link {
     text-align: center;
+}
+
+input[type="submit"], button {
+    background-color: var(--add-button-fill);
+    -webkit-text-stroke: var(--button-text-stroke-width) var(--add-button-stroke);
+    text-stroke: var(--button-text-stroke-width) var(--add-button-stroke);
+    border-radius: 0;
+    width: 50%;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    outline: none;
+    paint-order: stroke fill;
+}
+
+input[type="submit"]:focus-visible, button:focus-visible {
+    background-color: var(--add-button-fill);
+    outline: none;
+    box-shadow: 3px 3px 0px var(--effects-add-buttons);
+    text-shadow: 3px 3px 0px var(--add-button-stroke);
+    transition: box-shadow var(--transition-duration) ease, text-shadow var(--transition-duration) ease;
+}
+
+input[type="submit"]:hover, button:hover {
+    background-color: var(--add-button-fill);
+    outline: var(--button-hover-outline-width) dashed var(--effects-add-buttons);
+    outline-offset: 3px;
+    transform: translateY(-2px);
 }

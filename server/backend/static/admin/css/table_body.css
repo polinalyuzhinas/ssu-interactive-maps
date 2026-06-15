@@ -1,0 +1,128 @@
+.editable-cell {
+  position: relative;
+  padding: 8px 12px;
+  vertical-align: middle;
+}
+
+.editable-cell[data-editable="False"] .edit-icon-btn {
+    display: none;
+}
+
+.cell-editor {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 10%; 
+}
+
+
+.cell-input,
+.cell-select {
+  flex: 0 0 80%;
+  width: 80%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+input.cell-input.is-disabled, select.cell-select.is-disabled  {
+  cursor: not-allowed;
+}
+
+.editing .cell-input,
+.editing .cell-select {
+    background-color: var(--inputs-stroke);
+    border: var(--button-hover-outline-width) solid var(--inputs-fill);
+}
+
+.editing .cell-input:focus-visible,
+.editing .cell-select:focus-visible {
+    border: var(--button-hover-outline-width) solid var(--inputs-fill);
+    outline: none;
+    box-shadow: none;
+}
+
+.edit-icon-btn {
+    background: transparent;
+    border: none;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    opacity: 1;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.edit-icon-btn svg path {
+  color: var(--edit-inputs-buttons);
+  stroke: none;
+}
+
+.edit-icon-btn .icon-save {
+  color: var(--effects-button);
+}
+
+.edit-icon-btn .icon-edit {
+    display: block;
+}
+
+.edit-icon-btn .icon-save {
+    display: none;
+}
+
+.editing .edit-icon-btn .icon-edit {
+    display: none;
+}
+
+.editing .edit-icon-btn .icon-save {
+    display: block;
+}
+
+.edit-icon-btn:hover {
+  outline: none;
+}
+
+.edit-icon-btn:focus-visible {
+  box-shadow: none;
+}
+
+#result_list .action-checkbox {
+    width: 35px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#result_list .action-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 0;
+    opacity: 1;
+    visibility: visible;
+    display: inline-block;
+    position: static;
+    transform: none;
+}
+
+.cell-boolean {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  width: 0;
+  height: 0;
+}
+
+.cell-select.not-editable,
+.cell-input.not-editable {
+  opacity: 0.7;
+}
+
+.cell-select.not-editable:focus,
+.cell-input.not-editable:focus {
+  outline: none;
+  box-shadow: none;
+}

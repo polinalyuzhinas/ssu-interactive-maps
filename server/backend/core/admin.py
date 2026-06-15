@@ -11,7 +11,9 @@ from django.apps import apps
 from django.views.decorators.http import require_http_methods
 from django.template.response import TemplateResponse
 from django.db.models import Q
-from django import forms
+from django.utils.html import format_html
+from django.db.models.functions import Lower
+from django.core.exceptions import FieldDoesNotExist
 
 @staff_member_required
 @require_http_methods(["POST"])
@@ -124,7 +126,7 @@ def autocomplete_view(request):
             # assembling all text from related fields
             search_fields = [
                 f.name for f in related_model._meta.fields 
-                if isinstance(f, (models.CharField, models.TextField))
+                if isinstance(f, (models.CharField, models.TextField, models.IntegerField, models.SmallIntegerField))
             ]
             for f in related_model._meta.fields:
                 if f.is_relation and f.many_to_one:
@@ -147,7 +149,7 @@ def autocomplete_view(request):
                     
                     word_q = Q()
                     for sf in search_fields:
-                        word_q |= Q(**{f'{sf}__icontains': word})
+                        word_q |= Q(**{f'{sf}__icontains': word.lower()})
                     q_objects &= word_q 
                 
                 qs = qs.filter(q_objects)
@@ -157,10 +159,14 @@ def autocomplete_view(request):
             
         else:
             queryset = model.objects.exclude(**{f'{field_name}__isnull': True})
-            queryset = queryset.exclude(**{f'{field_name}__exact': ''})
             
+            if isinstance(model_field, (models.CharField, models.TextField)):
+                queryset = queryset.exclude(**{f'{field_name}__exact': ''})
+
             if term:
-                queryset = queryset.filter(**{f'{field_name}__icontains': term})
+                queryset = queryset.annotate(
+                    **{f'{field_name}_lower': Lower(field_name)}
+                ).filter(**{f'{field_name}_lower__contains': term.lower()})
             
             values = queryset.values_list(field_name, flat=True).distinct()[:20]
             results = [{'id': str(val), 'text': str(val)} for val in values if val]
@@ -177,8 +183,9 @@ def get_field_choices(field):
     
     if hasattr(field, 'choices') and field.choices:
         for value, label in field.choices:
+            safe_value = '' if value is None else value 
             choices.append({
-                'value': value,
+                'value': safe_value,
                 'label': str(label)
             })
         return choices
@@ -208,15 +215,11 @@ def get_field_type(field):
 
 @staff_member_required
 def get_all_objects(request, app_label=None, model_name=None, *args, **kwargs):
-    """Возвращает все объекты модели для клиентского поиска"""
     # if arguments from kwargs paramenter
     if app_label is None:
         app_label = kwargs.get('app_label')
     if model_name is None:
         model_name = kwargs.get('model_name')
-    
-    if not app_label or not model_name:
-        return JsonResponse({'error': 'app_label и model_name обязательны'}, status=400)
     
     try:
         model = apps.get_model(app_label, model_name)
@@ -238,14 +241,32 @@ def get_all_objects(request, app_label=None, model_name=None, *args, **kwargs):
                     'editable': field.editable,
                 }
             except Exception:
-                field_info[field_name] = {'type': 'default', 'name': field_name, 'choices': [], 'editable': True}
-        
+                admin_method = getattr(admin_class, field_name, None)
+
+                field_info[field_name] = {
+                    'type': 'raw_html',
+                    'name': field_name,
+                    'choices': [],
+                    'verbose_name': getattr(admin_method, 'short_description', field_name.replace('_', ' ').title()) if admin_method else field_name.replace('_', ' ').title(),
+                    'editable': False,
+                }
+
         objects_data = []
         for obj in model.objects.all():
             obj_data = {'pk': obj.pk}
             for field_name in list_display:
                 try:
-                    value = getattr(obj, field_name)
+                    try:
+                        model_field = model._meta.get_field(field_name)
+
+                        value = getattr(obj, field_name)
+                    except FieldDoesNotExist:
+                        admin_method = getattr(admin_class, field_name, None)
+                        if callable(admin_method):
+                            value = admin_method(obj)
+                        else:
+                            value = getattr(obj, field_name, '')
+                    
                     if value and hasattr(value, 'pk'):
                         obj_data[field_name] = {
                             'pk': value.pk,
@@ -274,9 +295,12 @@ def get_all_objects(request, app_label=None, model_name=None, *args, **kwargs):
         return JsonResponse({'error': str(e), 'success': False}, status=500)
     
 class BaseModelAdminMixin:
+    list_per_page = 50
+
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}
         extra_context['app_list'] = site.get_app_list(request)
+        extra_context['model_help_text'] = getattr(self.model, 'model_help_text', '')
         response = super().changelist_view(request, extra_context)
 
         if isinstance(response, TemplateResponse):
@@ -291,14 +315,23 @@ class BaseModelAdminMixin:
                         'choices': get_field_choices(field),
                         'verbose_name': field.verbose_name or field_name,
                         'editable': field.editable,
+                        'help_text': field.help_text or '',
                     }
                 except Exception:
+                    admin_method = getattr(self, field_name, None)
+                    
+                    default_name = field_name.replace('_', ' ').title()
+                    if admin_method:
+                        method_name = getattr(admin_method, 'description', getattr(admin_method, 'short_description', default_name))
+                    else:
+                        method_name = default_name
+
                     field_info[field_name] = {
-                        'type': 'default',
+                        'type': 'raw_html',
                         'name': field_name,
                         'choices': [],
-                        'verbose_name': field_name.replace('_', ' ').title(),
-                        'editable': True,
+                        'verbose_name': method_name,
+                        'editable': False,
                     }
 
             response.context_data['field_info'] = field_info
@@ -312,47 +345,45 @@ class BaseModelAdminMixin:
 admin.site.site_header = _("Отредактировать расписание")
 admin.site.index_title = ""
 
-
 @admin.register(Auditoriums)
 class AuditoriumsAdmin(BaseModelAdminMixin, admin.ModelAdmin):
-    list_display = ('number', 'floor', 'auditorium_type', 'have_lessons')
-    list_per_page = 10
+    list_display = ('number', 'description', 'floor', 'auditorium_type', 'display_have_lessons')
 
+    @admin.display(description='Есть ли пары?')
+    def display_have_lessons(self, obj):
+        is_checked = 'checked' if obj.have_lessons else ''
+        return format_html(
+            '<input type="checkbox" {} disabled style="width: 18px; height: 18px; cursor: not-allowed; accent-color: var(--notification-success, #709E6E);">',
+            is_checked
+        )
+    
 @admin.register(Auditorium_Types)
 class AuditoriumsTypesAdmin(BaseModelAdminMixin, admin.ModelAdmin):
     list_display = ('name', )
-    list_per_page = 10
 
 @admin.register(Faculties)
 class FacultiesAdmin(BaseModelAdminMixin, admin.ModelAdmin):
     list_display = ('full_name', 'short_name')
-    list_per_page = 10
 
 @admin.register(Faculty_Teachers)
 class FacultyTeachersAdmin(BaseModelAdminMixin, admin.ModelAdmin):
     list_display = ('surname', 'name', 'patronymic', 'faculty')
-    list_per_page = 10
 
 @admin.register(Lessons) 
 class LessonsAdmin(BaseModelAdminMixin, admin.ModelAdmin):
     list_display = ('name', 'assignment', 'lesson_type')
-    list_per_page = 10
 
 @admin.register(Groups)
 class GroupsAdmin(BaseModelAdminMixin, admin.ModelAdmin):
     list_display = ('number', 'faculty', 'group_type', 'form')
-    list_per_page = 10
   
 @admin.register(Groups_Schedule)
 class GroupsScheduleAdmin(BaseModelAdminMixin, admin.ModelAdmin):
     list_display = ('group', 'lesson')
-    list_per_page = 10
 
 @admin.register(Lessons_Schedule)
 class LessonsScheduleAdmin(BaseModelAdminMixin, admin.ModelAdmin):
-    list_display = ('lesson', 'auditorium', 'subgroup', 'week_day', 'time', 'parity', 'comment')
-    list_per_page = 10
-
+    list_display = ('week_day', 'time', 'auditorium', 'lesson', 'subgroup', 'parity', 'comment')
 
 original_get_app_list = admin.site.get_app_list
 

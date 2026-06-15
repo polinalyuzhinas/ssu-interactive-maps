@@ -1,0 +1,33 @@
+.logout-title {
+    font-weight: var(--headers-font-weight);
+    font-family: var(--header-font);
+    font-size: var(--desktop-main-header-font-size);
+    width: 50%;
+    margin: 0 0 24px 0;
+    line-height: 1.6;
+}
+
+.thank-you {
+    font-weight: var(--headers-font-weight);
+    font-family: var(--header-font);
+    font-size: var(--desktop-headers-font-size);
+    width: 50%;
+    margin: 0 0 24px 0;
+    line-height: 1.6;
+}
+
+.btn-login-again {
+  color: var(--button-color-text);
+  padding: 8px 20px;
+  max-width: 60%;
+  border: none;
+  font-weight: var(--headers-font-weight);
+  font-size: var(--desktop-bulk-btns-font-size);
+  cursor: pointer;
+}
+
+.logout-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}

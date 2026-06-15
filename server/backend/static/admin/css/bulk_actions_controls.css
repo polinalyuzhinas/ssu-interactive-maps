@@ -1,58 +1,67 @@
+.hint {
+  font-family: var(--header-font);
+  font-weight: var(--headers-font-weight);
+  text-decoration: underline;
+}
+
 .bulk-actions-bar {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: 12px;
   margin-bottom: 16px;
   padding: 12px 16px;
 }
 
+.bulk-buttons {
+  display: flex;
+  align-self: center;
+  gap: 86px;
+}
+
+.text-hints {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 86px;
+}
+
 .bulk-btn {
   padding: 8px 20px;
   border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.875rem;
+  font-weight: var(--headers-font-weight);
+  font-size: var(--desktop-bulk-btns-font-size);
   cursor: pointer;
-  transition: all 0.2s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
+  color: var(--button-color-text);
 }
 
 .bulk-select-all {
-  background: #5b7fa6;
-  color: #fff;
-}
-
-.bulk-select-all:hover {
-  background: #4a6d91;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(91, 127, 166, 0.3);
-}
-
-.bulk-select-all:active {
-  transform: translateY(0);
+  background: var(--button-primary);
 }
 
 .bulk-remove-all {
-  background: #d9534f;
-  color: #fff;
+  background: var(--delete-buttons-fill);
+  -webkit-text-stroke-color: var(--delete-button-text-stroke);
+  text-stroke-color: var(--delete-button-text-stroke);
+}
+
+.bulk-remove-all:focus-visible {
+  box-shadow: 3px 3px 0px var(--effects-delete-buttons);
+  text-shadow: 3px 3px 0px var(--delete-button-text-stroke);
 }
 
 .bulk-remove-all:hover {
-  background: #c9302c;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(217, 83, 79, 0.3);
-}
-
-.bulk-remove-all:active {
-  transform: translateY(0);
+  outline-color: var(--effects-delete-buttons);
+  background-color: var(--delete-buttons-fill);
 }
 
 .bulk-counter {
-  margin-left: auto;
-  font-weight: 500;
-  color: #555;
-  font-size: 0.875rem;
+  display: flex;
+  justify-self: end;
+  font-weight: var(--headers-font-weight);
+  color: var(--text-color);
+  font-size: var(--desktop-bulk-btns-font-size);
   padding: 6px 12px;
 }
 
@@ -62,92 +71,8 @@
   align-items: center;
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid #d0d8e4;
   flex-wrap: wrap;
   gap: 16px;
-}
-
-.paginator {
-  display: flex;
-  flex-direction: column;
-}
-
-.pagination-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid #d0d8e4;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.pagination-nav {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.paginator-page,
-.paginator-dots {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 36px;
-  height: 36px;
-  padding: 0 6px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.paginator-page {
-  background: #5b7fa6;
-  color: #fff;
-}
-
-.paginator-page:hover {
-  background: #4a6d91;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(91, 127, 166, 0.3);
-}
-
-.paginator-page.this-page {
-  background: #3d5a80;
-  color: #fff;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-  cursor: default;
-  transform: none;
-}
-
-.paginator-dots {
-  background: transparent;
-  color: #6c757d;
-  cursor: default;
-  pointer-events: none;
-  box-shadow: none;
-  min-width: auto;
-  padding: 0 4px;
-}
-
-.pagination-count {
-  display: flex;
-  align-items: center;
-}
-
-.count-text {
-  font-weight: 500;
-  color: #555;
-  font-size: 0.9rem;
-  padding: 6px 12px;
-  white-space: nowrap;
-}
-
-.paginator .showall {
-  display: none;
 }
 
 .bottom-buttons {
@@ -158,14 +83,10 @@
 .btn {
   padding: 10px 20px;
   border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
+  font-weight: var(--headers-font-weight);
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.2s ease;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -176,65 +97,114 @@
 }
 
 .btn-add {
-  background: #4caf50;
-  color: #fff;
+  color: var(--button-color-text);
+  background: var(--add-button-fill);
+  -webkit-text-stroke-color: var(--add-button-stroke);
+  text-stroke-color: var(--add-button-stroke);
 }
 
 .btn-add:hover {
-  background: #43a047;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  outline-color: var(--effects-add-buttons);
+}
+
+.btn-add:focus-visible {
+  box-shadow: 3px 3px 0px var(--effects-add-buttons);
+  text-shadow: 3px 3px 0px var(--add-button-stroke);
 }
 
 .btn-delete {
-  background: #d9534f;
-  color: #fff;
+  background: var(--delete-buttons-fill);
+  color: var(--button-color-text);
+  -webkit-text-stroke-color: var(--delete-button-text-stroke);
+  text-stroke: var(--delete-button-text-stroke);
 }
 
 .btn-delete:hover {
-  background: #c9302c;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(217, 83, 79, 0.3);
+  outline-color: var(--effects-delete-buttons);
 }
 
-.btn:active {
-  transform: translateY(0);
+.btn-delete:focus-visible {
+  box-shadow: 3px 3px 0px var(--effects-delete-buttons);
+  text-shadow: 3px 3px 0px var(--delete-button-text-stroke);
 }
 
 .btn-delete:disabled {
-  background: #cbd5e1;
-  color: #64748b;
-  cursor: not-allowed;
+  color: var(--button-color-text);
+  background: var(--disabled-button-fill);
+  -webkit-text-stroke-color: var(--disabled-button-stroke);
+  text-stroke: var(--disabled-button-stroke);
   transform: none;
   box-shadow: none;
 }
 
-@media (max-width: 768px) {
-  .bottom-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .bottom-buttons {
-    justify-content: center;
-  }
+/* add element to form buttons */
 
-  .bulk-actions-bar {
-    flex-wrap: wrap;
-  }
-  
-  .bulk-counter {
-    width: 100%;
-    margin-left: 0;
-    margin-top: 8px;
-    text-align: center;
-  }
-
-  .pagination-wrapper {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .pagination-nav, .pagination-count {
-    justify-content: center;
-  }
+div.submit-row {
+  background: none
 }
+
+.button, 
+input[type=submit], 
+input[type=button], 
+.submit-row input, 
+a.button {
+  font-family: var(--header-font);
+  font-weight: var(--headers-font-weight);
+  background-color: var(--button-primary);
+  -webkit-text-stroke: var(--button-text-stroke-width) var(--button-text-stroke);
+  text-stroke: var(--button-text-stroke-width) var(--button-text-stroke);
+  border-radius: 0;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  paint-order: stroke fill;
+}
+
+.button:focus-visible, 
+input[type=submit]:focus-visible, 
+input[type=button]:focus-visible, 
+.submit-row input:focus-visible, 
+a.button:focus-visible {
+    background-color: var(--button-primary);
+    outline: none;
+    box-shadow: 3px 3px 0px var(--effects-button);
+    text-shadow: 3px 3px 0px var(--button-text-stroke);
+    transition: box-shadow 0.2s ease, text-shadow 0.2s ease;
+}
+
+.button:hover, 
+input[type=submit]:hover, 
+input[type=button]:hover, 
+.submit-row input:hover, 
+a.button:hover {
+    background-color: var(--button-primary);
+    outline: var(--button-hover-outline-width) dashed var(--effects-button);
+    outline-offset: 3px;
+    transform: translateY(-2px);
+}
+
+.button.default, 
+input[type=submit].default, 
+.submit-row input.default {
+  font-weight: var(--headers-font-weight);
+  background-color: var(--add-button-fill);
+  -webkit-text-stroke: var(--button-text-stroke-width) var(--add-button-stroke);
+  text-stroke: var(--button-text-stroke-width) var(--add-button-stroke);
+}
+
+.button.default:focus-visible, 
+input[type=submit].default:focus-visible, 
+.submit-row input.default:focus-visible {
+    background-color: var(--add-button-fill);
+    box-shadow: 3px 3px 0px var(--effects-add-buttons);
+    text-shadow: 3px 3px 0px var(--add-button-stroke);
+}
+
+.button.default:hover, 
+input[type=submit].default:hover, 
+.submit-row input.default:hover {
+    background-color: var(--add-button-fill);
+    outline-color: var(--effects-add-buttons);
+}
+
+

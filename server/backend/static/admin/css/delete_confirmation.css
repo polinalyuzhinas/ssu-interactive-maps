@@ -1,0 +1,119 @@
+
+.delete-confirmation-page {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+}
+
+.delete-warning {
+    font-weight: var(--headers-font-weight);
+    font-family: var(--header-font);
+    font-size: var(--desktop-main-header-font-size);
+    width: 50%;
+    margin: 0 0 24px 0;
+    line-height: 1.6;
+}
+
+.confirm-buttons {
+  display: flex;
+  width: 100%;
+  gap: 82px;
+  align-items: stretch;
+}
+
+.confirm-buttons .confirmation-button,
+.confirm-buttons .cancel-link {
+  flex: 1;
+}
+
+.objects-title {
+  font-weight: var(--headers-font-weight);
+  font-family: var(--header-font);
+  font-size: var(--desktop-header-font-size);
+  text-decoration: underline;
+  margin-top: 90px;
+}
+
+.deleted-objects-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 32px 0;
+    overflow: hidden;
+    cursor: default;
+}
+
+.deleted-objects-table th,
+.deleted-objects-table td {
+    background-color: var(--bg-table);
+    padding: 12px 16px;
+    text-align: left;
+}
+
+.deleted-objects-table th {
+  font-family: var(--header-font);
+  font-weight: var(--headers-font-weight);
+  font-size: var(--desktop-main-font-size);
+  background-color: var(--button-primary);
+  color: var(--button-color-text);
+}
+
+.deleted-objects-table > .model-name-cell {
+    width: 35%;
+    color: var(--button-color-text);
+    font-weight: var(--headers-font-weight);
+}
+
+.deleted-objects-table .object-str-cell {
+  color: var(--text-color);
+  font-weight: var(--headers-font-weight);
+  background-color: var(--inputs-fill);
+  border: var(--inputs-border-width) solid var(--inputs-stroke);
+  border-radius: 0;
+  paint-order: stroke fill;
+}
+
+.delete-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.btn {
+    padding: 12px 28px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+input[type=submit].confirmation-button {
+  background: var(--delete-buttons-fill);
+  -webkit-text-stroke-color: var(--delete-button-text-stroke);
+  text-stroke-color: var(--delete-button-text-stroke);
+}
+
+input[type=submit].confirmation-button:focus-visible {
+  box-shadow: 3px 3px 0px var(--effects-delete-buttons);
+  text-shadow: 3px 3px 0px var(--delete-button-text-stroke);
+  background-color: var(--delete-buttons-fill);
+}
+
+input[type=submit].confirmation-button:hover {
+  outline-color: var(--effects-delete-buttons);
+  background-color: var(--delete-buttons-fill);
+}
+
+.cancel-link, 
+a.button {
+  text-align: center;
+  padding: 10px 20px; 
+}

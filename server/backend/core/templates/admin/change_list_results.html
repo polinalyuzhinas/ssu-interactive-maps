@@ -1,9 +1,14 @@
 {% load i18n admin_urls dict_filters %}
 
 <div class="bulk-actions-bar">
-  <button type="button" class="bulk-btn bulk-select-all" id="select-all-btn">Выбрать все</button>
-  <button type="button" class="bulk-btn bulk-remove-all" id="remove-all-btn">Снять все</button>
-  <span class="bulk-counter" id="bulk-counter">Выбрано 0 из {{ cl.result_count }}</span>
+  <div class="bulk-buttons">
+    <button type="button" title="Выделить всё" class="bulk-btn bulk-select-all" id="select-all-btn">Выбрать все</button>
+    <button type="button" title="Снять всё" class="bulk-btn bulk-remove-all" id="remove-all-btn">Снять все</button>
+  </div>
+  <div class="text-hints">
+    <span class="hint">Выберите элемент {{ opts.verbose_name|capfirst }} для изменения</span>
+    <span class="bulk-counter" id="bulk-counter">Выбрано 0 из {{ cl.result_count }}</span>
+  </div>
 </div>
 
 {% if result_hidden_fields %}
@@ -14,35 +19,42 @@
 <table id="result_list">
   <thead>
     <tr>
-      <th class="action-checkbox-column" scope="col">
+      <th class="result-list-header action-checkbox-column" scope="col">
         <input type="checkbox" id="action-toggle">
       </th>
       {% for field_name in cl.list_display %}
         {% if field_name != 'action_checkbox' %}
         {% with info=field_info|get:field_name %}
-        <th scope="col">
+        <th scope="col" class="result-list-header">
           <div class="th-content">
             <div class="sortable-header">
-              <button type="button" class="sort-toggle-btn" data-col="{{ forloop.counter0 }}" data-state="none">
+              <span class="header-text" title="{{ info.help_text|default:'' }}">{{ info.verbose_name|capfirst }}</span>
+              <button type="button" title="Сортировать" class="sort-toggle-btn" data-col="{{ forloop.counter0 }}" data-state="none">
                 <div class="sort-icon-container">
-                  <svg class="sort-icon state-not_sorted" width="28" height="8" viewBox="0 0 28 8"><rect width="28" height="8" fill="#9F9F9F"/></svg>
-                  <svg class="sort-icon state-asc" width="23" height="11" viewBox="0 0 23 11"><path d="M11.2583 0L22.5166 10.5H-2.95639e-05L11.2583 0Z" fill="white"/></svg>
-                  <svg class="sort-icon state-desc" width="23" height="11" viewBox="0 0 23 11"><path d="M11.2583 10.5L22.5166 0H-2.95639e-05L11.2583 10.5Z" fill="white"/></svg>
+                  <svg class="sort-icon state-not_sorted" width="28" height="8" viewBox="0 0 28 8">
+                    <rect width="28" height="8" fill="currentColor" />
+                  </svg>
+                  <svg class="sort-icon state-asc" width="23" height="11" viewBox="0 0 23 11">
+                    <path d="M11.2583 0L22.5166 10.5H-2.95639e-05L11.2583 0Z" fill="currentColor" />
+                  </svg>
+                  <svg class="sort-icon state-desc" width="23" height="11" viewBox="0 0 23 11">
+                    <path d="M11.2583 10.5L22.5166 0H-2.95639e-05L11.2583 10.5Z" fill="currentColor" />
+                  </svg>
                 </div>
               </button>
-              <span class="header-text">{{ info.verbose_name|capfirst }}</span>
             </div>
             <div class="search-input-wrapper">
+              <svg width="25" height="25" viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13.22 5.72014C12.2182 4.71848 10.8865 4.16682 9.4699 4.16687C8.84227 4.16687 8.33353 4.67566 8.33353 5.30325C8.33362 5.93088 8.84232 6.43962 9.46995 6.43962C10.2794 6.43962 11.0404 6.75476 11.6128 7.32722C12.1852 7.89963 12.5004 8.66062 12.5004 9.47004C12.5003 10.0976 13.0091 10.6065 13.6367 10.6065C13.6368 10.6065 13.6368 10.6065 13.6368 10.6065C14.2643 10.6065 14.7731 10.0978 14.7732 9.47019C14.7732 8.05364 14.2217 6.7218 13.22 5.72014Z" fill="currentColor"/>
+                <path d="M24.6671 23.0602L16.9188 15.3118C18.1845 13.7015 18.9402 11.6724 18.9402 9.47007C18.9401 4.24829 14.6919 0 9.47001 0C9.46987 0 9.47001 0 9.46987 0C6.94042 0 4.5622 0.985107 2.77373 2.77363C0.985009 4.56235 0 6.94048 0 9.47007C0 14.6919 4.24824 18.9401 9.47001 18.9401C11.6723 18.9401 13.7015 18.1845 15.3118 16.9188L23.06 24.6672C23.2819 24.8891 23.5728 25 23.8636 25C24.1544 25 24.4453 24.8891 24.6671 24.6671C25.111 24.2234 25.111 23.5039 24.6671 23.0602ZM9.47001 16.6674C5.50146 16.6674 2.27275 13.4387 2.27275 9.47007C2.27275 7.54756 3.02138 5.74014 4.38076 4.38076C5.74013 3.02129 7.5475 2.27275 9.47001 2.27275C13.4387 2.27275 16.6674 5.50146 16.6674 9.47012C16.6674 13.4388 13.4387 16.6674 9.47001 16.6674Z" fill="currentColor"/>
+              </svg>
               <input type="text" class="search-input" placeholder="..." 
                 data-col="{{ forloop.counter0 }}" 
                 data-field-name="{{ field_name }}"
                 data-app-label="{{ model_meta.app_label }}"
                 data-model-name="{{ model_meta.model_name }}"
-                value="">
-              <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M13.22 5.72014C12.2182 4.71848 10.8865 4.16682 9.4699 4.16687C8.84227 4.16687 8.33353 4.67566 8.33353 5.30325C8.33362 5.93088 8.84232 6.43962 9.46995 6.43962C10.2794 6.43962 11.0404 6.75476 11.6128 7.32722C12.1852 7.89963 12.5004 8.66062 12.5004 9.47004C12.5003 10.0976 13.0091 10.6065 13.6367 10.6065C13.6368 10.6065 13.6368 10.6065 13.6368 10.6065C14.2643 10.6065 14.7731 10.0978 14.7732 9.47019C14.7732 8.05364 14.2217 6.7218 13.22 5.72014Z" fill="#818BA0"/>
-                <path d="M24.6671 23.0602L16.9188 15.3118C18.1845 13.7015 18.9402 11.6724 18.9402 9.47007C18.9401 4.24829 14.6919 0 9.47001 0C9.46987 0 9.47001 0 9.46987 0C6.94042 0 4.5622 0.985107 2.77373 2.77363C0.985009 4.56235 0 6.94048 0 9.47007C0 14.6919 4.24824 18.9401 9.47001 18.9401C11.6723 18.9401 13.7015 18.1845 15.3118 16.9188L23.06 24.6672C23.2819 24.8891 23.5728 25 23.8636 25C24.1544 25 24.4453 24.8891 24.6671 24.6671C25.111 24.2234 25.111 23.5039 24.6671 23.0602ZM9.47001 16.6674C5.50146 16.6674 2.27275 13.4387 2.27275 9.47007C2.27275 7.54756 3.02138 5.74014 4.38076 4.38076C5.74013 3.02129 7.5475 2.27275 9.47001 2.27275C13.4387 2.27275 16.6674 5.50146 16.6674 9.47012C16.6674 13.4388 13.4387 16.6674 9.47001 16.6674Z" fill="#818BA0"/>
-              </svg>
+                value=""
+                {% if field_name == 'display_have_lessons' %}disabled{% endif %}>
             </div>
           </div>
         </th>
@@ -70,7 +82,6 @@
               data-model-name="{{ model_meta.model_name }}"
               data-editable="{{ info.editable|default:True }}">
             <div class="cell-editor">
-                      
                 {% if info.type == 'foreignkey' %}
                 <input type="text" class="cell-input cell-foreignkey" 
                       value="{{ raw_value|default:'' }}" 
@@ -79,31 +90,43 @@
                       autocomplete="off" />
                 {% if info.editable %}
                   <button type="button" class="edit-icon-btn" title="Редактировать">
-                    <svg width="26" height="25" viewBox="0 0 26 25"><path d="M3.95 23.3L0.75 24.25L1.7 21.13L3.95 23.3ZM24.32 3.32L6.52 21.2L3.91 18.55L21.68 0.71L24.32 3.32Z" fill="#818BA0"/></svg>
+                    <svg class="icon-edit" width="25" height="25" viewBox="0 0 25 25">
+                        <path d="M3.95 23.3L0.75 24.25L1.7 21.13L3.95 23.3ZM24.32 3.32L6.52 21.2L3.91 18.55L21.68 0.71L24.32 3.32Z" fill="currentColor" stroke="currentColor"/>
+                    </svg>
+                    <svg class="icon-save" width="25" height="25" viewBox="0 0 25 25" fill="currentColor">
+                      <path d="M 21.519071,1.1235445 11.206687,20.360063 3.203125,11.173828 c -1.0742417,0.818449 -1.375152,1.172945 -2.71875,2.359375 l 9.415288,10.756089 c 0.909882,1.05669 2.506231,0.793081 3.17919,-0.428232 L 24.755859,2.9648438 C 23.257261,2.2254442 23.256917,2.1896147 21.519071,1.1235445 Z"/>
+                    </svg>
                   </button>
                 {% endif %}
 
                 {% elif info.type == 'choices' %}
-                    <select class="cell-select {% if not info.editable %}not-editable{% endif %}" 
-                            data-original-value="{{ raw_value }}" 
-                            style="flex: 1;" 
-                            disabled>
-                        <option value="">-</option>
-                        {% for option in info.choices %}
-                            <option value="{{ option.value }}" 
-                                {% if option.value|stringformat:"s" == raw_value|stringformat:"s" %}selected{% endif %}>
-                                {{ option.label }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                    {% if info.editable %}
-                      <button type="button" class="edit-icon-btn" title="Редактировать">
-                        <svg width="42" height="24" viewBox="0 0 42 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M1.5 1.5L20.5199 22.5L39.5399 1.50002" stroke="#818BA0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                      </button>
-                    {% endif %}
+                  <select class="cell-select {% if not info.editable %}not-editable{% endif %}" 
+                          data-original-value="{{ raw_value }}" 
+                          style="flex: 1;" 
+                          disabled>
+                      <option value="" {% if not raw_value %}selected{% endif %}>---------</option>
+                      {% for option in info.choices %}
+                          <option value="{{ option.value }}" 
+                              {% if option.value|stringformat:"s" == raw_value|stringformat:"s" %}selected{% endif %}>
+                              {{ option.label }}
+                          </option>
+                      {% endfor %}
+                  </select>
+                  {% if info.editable %}
+                    <button type="button" class="edit-icon-btn" title="Редактировать">
+                      <svg  class="icon-edit" width="25" height="25" viewBox="0 0 25 25" fill="currentColor" stroke="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 22.935763,0.00398384 A 1.3049467,2.2175046 0 0 0 22.035214,0.73448988 L 12.15636,19.392712 2.2758062,0.73448988 A 1.3049467,2.2175046 0 0 0 0.43222914,0.56990948 1.3049467,2.2175046 0 0 0 0.33537763,3.7027121 L 11.186146,24.188642 a 1.3050772,2.2177263 0 0 0 1.938729,0 L 23.975643,3.7027121 A 1.3049467,2.2175046 0 0 0 23.878792,0.56990948 1.3049467,2.2175046 0 0 0 22.935763,0.00398384 Z"/>
+                      </svg>
+
+                      <svg class="icon-save" width="25" height="25" viewBox="0 0 25 25" fill="currentColor" stroke="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 21.519071,1.1235445 11.206687,20.360063 3.203125,11.173828 c -1.0742417,0.818449 -1.375152,1.172945 -2.71875,2.359375 l 9.415288,10.756089 c 0.909882,1.05669 2.506231,0.793081 3.17919,-0.428232 L 24.755859,2.9648438 C 23.257261,2.2254442 23.256917,2.1896147 21.519071,1.1235445 Z"/>
+                      </svg>
+                    </button>
+                  {% endif %}
               
+              {% elif field_info.field_name.type == 'raw_html' or field_name == 'display_have_lessons' %}
+                {{ calculated_fields|get:field_name|get:result.pk|default:"" }}
+
               {% elif info.type == 'boolean' %}
                 <label class="cell-boolean-wrapper {% if not info.editable %}not-editable{% endif %}">
                   <input type="checkbox" 
@@ -126,11 +149,13 @@
                   disabled>
                 {% if info.editable %}
                   <button type="button" class="edit-icon-btn" title="Редактировать">
-                    <svg width="26" height="25" viewBox="0 0 26 25"><path d="M3.95 23.3L0.75 24.25L1.7 21.13L3.95 23.3ZM24.32 3.32L6.52 21.2L3.91 18.55L21.68 0.71L24.32 3.32Z" fill="#818BA0"/></svg>
+                    <svg class="icon-edit" width="25" height="25" viewBox="0 0 25 25"><path d="M3.95 23.3L0.75 24.25L1.7 21.13L3.95 23.3ZM24.32 3.32L6.52 21.2L3.91 18.55L21.68 0.71L24.32 3.32Z" fill="currentColor" stroke="currentColor"/></svg>
+                    <svg class="icon-save" width="25" height="25" viewBox="0 0 25 25" fill="currentColor">
+                      <path d="M 21.519071,1.1235445 11.206687,20.360063 3.203125,11.173828 c -1.0742417,0.818449 -1.375152,1.172945 -2.71875,2.359375 l 9.415288,10.756089 c 0.909882,1.05669 2.506231,0.793081 3.17919,-0.428232 L 24.755859,2.9648438 C 23.257261,2.2254442 23.256917,2.1896147 21.519071,1.1235445 Z"/>
+                    </svg>
                   </button>
                 {% endif %}
               {% endif %}
-              
             </div>
            </td>
            

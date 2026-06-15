@@ -1,0 +1,117 @@
+#action-toggle {
+  display: none;
+}
+
+thead th.result-list-header {
+  font-family: var(--header-font);
+  font-weight: var(--headers-font-weight);
+  font-size: clamp(var(--mobile-header-font-size), var(--mobile-main-header-font-size), var(--desktop-main-font-size));
+  background-color: var(--button-primary);
+  color: var(--button-color-text);
+}
+
+#changelist table thead th {
+  padding: 15px;
+}
+
+.sortable-header {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  width: 100%;
+  gap: 10%;
+}
+
+.sort-toggle-btn {
+  flex: 0 0 20%;
+  width: 20%;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.header-text {
+  flex: 0 0 70%;
+  width: 70%;
+}
+
+.sort-toggle-btn svg path {
+  stroke: none;
+}
+
+.sort-toggle-btn:hover {
+  transform: none;
+  outline: none;
+}
+
+.sort-toggle-btn:focus-visible {
+  box-shadow: none;
+}
+
+.sort-icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sort-icon {
+  position: absolute;
+  visibility: hidden;
+  opacity: 0;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.sort-toggle-btn[data-state="none"] .state-not_sorted,
+.sort-toggle-btn[data-state="asc"] .state-asc,
+.sort-toggle-btn[data-state="desc"] .state-desc {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sort-toggle-btn[data-state="none"] .state-not_sorted {
+  color: var(--not-sorted-button);
+}
+
+.sort-toggle-btn[data-state="asc"] .state-asc,
+.sort-toggle-btn[data-state="desc"] .state-desc {
+  color: var(--button-color-text);
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  padding: 6px 32px 6px 12px; 
+  transition: box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.search-input:disabled {
+  opacity: 0.5;
+}
+
+.search-input::placeholder {
+  color: var(--placeholder-text);
+}
+
+.search-input-wrapper > svg {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.search-input-wrapper > svg path {
+  fill: var(--placeholder-text);
+}

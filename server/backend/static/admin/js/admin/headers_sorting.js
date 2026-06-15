@@ -1,84 +1,117 @@
 document.addEventListener('DOMContentLoaded', function() {
-  function initSortStates() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const oParam = urlParams.get('o') || '';
-    const sorts = oParam ? oParam.split('.').map(s => s.toString()) : [];
+    const tbody = document.querySelector('#result_list tbody');
+    if (!tbody) return;
+
+    const initialRows = Array.from(tbody.querySelectorAll('tr'));
+    initialRows.forEach((row, index) => {
+        row.dataset.originalIndex = index;
+    });
+
+    function getCellValue(row, colIndex) {
+        const cell = row.cells[colIndex + 1];
+        if (!cell) return '';
+
+        const originalWidget = cell.querySelector('.original-widget');
+        if (originalWidget) {
+            const visibleSelect = cell.querySelector('.cell-select');
+            if (visibleSelect && visibleSelect.tagName === 'SELECT') {
+                const opt = visibleSelect.options[visibleSelect.selectedIndex];
+                return opt ? opt.textContent.trim().toLowerCase() : '';
+            }
+            return String(originalWidget.value || '').toLowerCase();
+        }
+
+        const input = cell.querySelector('.cell-input, input[type="text"]');
+        if (input) return String(input.value || '').toLowerCase();
+
+        const select = cell.querySelector('select');
+        if (select) {
+            const opt = select.options[select.selectedIndex];
+            return opt ? opt.textContent.trim().toLowerCase() : '';
+        }
+
+        const checkbox = cell.querySelector('.cell-boolean, input[type="checkbox"]');
+        if (checkbox) return checkbox.checked ? 'да' : 'нет';
+
+        return cell.textContent.trim().toLowerCase();
+    }
+
+    function sortTable(colIndex, direction) {
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+
+        if (direction === 'none') {
+            rows.sort((a, b) => {
+                return parseInt(a.dataset.originalIndex, 10) - parseInt(b.dataset.originalIndex, 10);
+            });
+        } else {
+            rows.sort((a, b) => {
+                const valA = getCellValue(a, colIndex);
+                const valB = getCellValue(b, colIndex);
+
+                const numA = parseFloat(valA);
+                const numB = parseFloat(valB);
+                if (!isNaN(numA) && !isNaN(numB) && valA !== '' && valB !== '') {
+                    return direction === 'asc' ? numA - numB : numB - numA;
+                }
+
+                const cmp = valA.localeCompare(valB, 'ru', { sensitivity: 'base' });
+                return direction === 'asc' ? cmp : -cmp;
+            });
+        }
+
+        rows.forEach(row => tbody.appendChild(row));
+    }
 
     document.querySelectorAll('.sort-toggle-btn').forEach(function(btn) {
-      const col = btn.dataset.col;
-      let state = 'none';
-      for (const s of sorts) {
-        if (s === col) { state = 'asc'; break; }
-        if (s === '-' + col) { state = 'desc'; break; }
-      }
-      btn.dataset.state = state;
-    });
-  }
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const col = parseInt(this.dataset.col, 10);
+            const currentState = this.dataset.state || 'none';
 
-  document.querySelectorAll('.sort-toggle-btn').forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-      e.preventDefault();
+            // cecle of sort states none -> asc -> desc -> none
+            let newState;
+            if (currentState === 'none') newState = 'asc';
+            else if (currentState === 'asc') newState = 'desc';
+            else newState = 'none';
 
-      const col = this.dataset.col;
-      const currentState = this.dataset.state;
-      const urlParams = new URLSearchParams(window.location.search);
-      const oParam = urlParams.get('o') || '';
-      let sorts = oParam ? oParam.split('.').map(s => s.toString()) : [];
+            document.querySelectorAll('.sort-toggle-btn').forEach(b => {
+                if (b !== this) b.dataset.state = 'none';
+            });
+            this.dataset.state = newState;
 
-      let sortIndex = -1;
-      for (let i = 0; i < sorts.length; i++) {
-        const s = sorts[i];
-        if (s === col || s === '-' + col) { sortIndex = i; break; }
-      }
+            const url = new URL(window.location);
+            if (newState === 'none') {
+                url.searchParams.delete('o');
+            } else {
+                url.searchParams.set('o', newState === 'desc' ? `-${col}` : `${col}`);
+            }
+            window.history.pushState({}, '', url);
 
-      if (currentState === 'none') {
-        sorts.unshift(col);
-        this.dataset.state = 'asc';
-      } else if (currentState === 'asc') {
-        sorts[sortIndex] = '-' + col;
-        this.dataset.state = 'desc';
-      } else {
-        sorts.splice(sortIndex, 1);
-        this.dataset.state = 'none';
-      }
-
-      const newO = sorts.join('.');
-      if (newO) urlParams.set('o', newO);
-      else urlParams.delete('o');
-
-      const newUrl = window.location.pathname + '?' + urlParams.toString();
-
-      window.history.pushState({ path: newUrl }, '', newUrl);
-      this.classList.add('loading');
-      this.disabled = true;
-
-      // sorted table request
-      fetch(newUrl)
-        .then(response => {
-          if (!response.ok) throw new Error('Сетевая ошибка');
-          return response.text();
-        })
-        .then(html => {
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-          const newTbody = doc.querySelector('#result_list tbody');
-          const currentTbody = document.querySelector('#result_list tbody');
-
-          if (newTbody && currentTbody) {
-            currentTbody.innerHTML = newTbody.innerHTML;
-          }
-        })
-        .catch(error => {
-          console.error('Ошибка сортировки:', error);
-          // fallback: default refreshing page
-          window.location.href = newUrl;
-        })
-        .finally(() => {
-          this.classList.remove('loading');
-          this.disabled = false;
+            sortTable(col, newState);
         });
     });
-  });
 
-  initSortStates();
+    function initSortStates() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const oParam = urlParams.get('o') || '';
+        
+        document.querySelectorAll('.sort-toggle-btn').forEach(b => b.dataset.state = 'none');
+
+        if (oParam) {
+            const isDesc = oParam.startsWith('-');
+            const colIndex = parseInt(isDesc ? oParam.substring(1) : oParam, 10);
+            const state = isDesc ? 'desc' : 'asc';
+            const btn = document.querySelector(`.sort-toggle-btn[data-col="${colIndex}"]`);
+            if (btn) {
+                btn.dataset.state = state;
+                sortTable(colIndex, state);
+            }
+        }
+    }
+
+    window.addEventListener('popstate', function() {
+        initSortStates();
+    });
+
+    initSortStates();
 });

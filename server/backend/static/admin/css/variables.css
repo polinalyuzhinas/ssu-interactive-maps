@@ -1,59 +1,16 @@
-:root {
-  /* colors */
-  /* light theme */
-    --light-bg: #EAEAEA;
-    --light-button-primary: #6985BA;
-    --light-button-text-stroke: #304D86;
-    --light-text-color: #000;
-    --light-delete-table-buttons: #fff;
-    --light-delete-buttons-fill: #C62F2F;
-    --light-delete-buttons-text-stroke: #5F0000;
-    --light-bg-table: #FFF;
-    --light-header-table: #6985BA;
-    --light-row-selection: #BCCAEB;
-    --light-edit-inputs-buttons: #818BA0;
-    --light-inputs-fill: #D2DAEB;
-    --light-inputs-stroke: #A0ACC1;
-    --light-checkbox-fill: #A0ACC1;
-    --light-checkbox-stroke: #778091;
-    --light-pagination-hightlight: #293D65;
-    --light-table-tree: #605F5F;
-    --light-add-button-fill: #709E6E;
-    --light-add-button-stroke: #3D5B3C;
-
-
-  /* dark theme */
-    --dark-bg: #252634;
-    --dark-button-primary: #A671B4;
-    --dark-button-text-stroke: #490E62;
-    --dark-text-color: #FFF;
-    --dark-delete-table-buttons: #F5D1FF;
-    --dark-delete-buttons-fill: #A10E0E;
-    --dark-delete-buttons-text-stroke: #0B0000;
-    --dark-bg-table: #4E3854;
-    --dark-header-table: #A671B4;
-    --dark-row-selection: #360F42;
-    --dark-edit-inputs-buttons: #F5D1FF;
-    --dark-inputs-fill: #906B9A;
-    --dark-inputs-stroke: #BE8ACC;
-    --dark-checkbox-fill: #BE8ACC;
-    --dark-checkbox-stroke: #F6D4FF;
-    --dark-pagination-hightlight: #6D4D76;
-    --dark-table-tree: #F5D1FF;
-    --dark-add-button-fill: #466745;
-    --dark-add-button-stroke: #273C26;
-
-
-  /* both */
+html:root {
+    /* both themes*/
     --button-color-text: #f5f5f5;
     --disabled-button-fill: #9F9F9F;
     --disabled-button-stroke: #5E5E5E;
-    
-  
-  /* text */
+
+    /* text, strokes, outlines */
     --main-font: 'Inter', sans-serif;
     --header-font: 'Montserrat', serif;
     --headers-font-weight: bold;
+    --text-stroke-width: 2px;
+    --button-text-stroke-width: 3px;
+    --desktop-bulk-btns-font-size: 16px;
     --desktop-main-header-font-size: 30px;
     --desktop-header-font-size: 24px;
     --desktop-main-font-size: 20px;
@@ -63,12 +20,78 @@
     --tablet-main-font-size: 16px;
     --tablet-pagination-font-size: 28px;
     --mobile-main-header-font-size: 14px;
-    --mobile-header-font-size: 14px;
+    --mobile-header-font-size: 12px;
     --mobile-main-font-size: 20px;
     --mobile-pagination-font-size: 28px;
+    --button-hover-outline-width: 3px;
+    --transition-duration: 0.2s;
 
-  /* sizes dekstop */
-  --desktop-size-theme-button: 55px;
-  --desktop-size-profile: 90px;
+    --inputs-border-width: 1.5px;
 
+    /* sizes dekstop */
+    --desktop-size-theme-button: 55px;
+    --desktop-size-profile: 90px;
+    --desktop-app-list-width: 205px;
+    --desktop-app-list-diff-width: 40px;  
+    --desktop-header-min-height: 64px;  
+}
+
+html:root[data-theme="light"] {
+  --bg: #EAEAEA;
+  --button-primary: #6985BA;
+  --button-text-stroke: #304D86;
+  --text-color: #000;
+  --effects-button: #304D86;
+  --effects-add-buttons: #3D5B3C;
+  --effects-delete-buttons: #A10E0E;
+  --delete-table-buttons: #fff;
+  --delete-buttons-fill: #C62F2F;
+  --delete-button-text-stroke: #5F0000;
+  --bg-table: #FFF;
+  --header-table: #6985BA;
+  --row-selection: #BCCAEB;
+  --edit-inputs-buttons: #818BA0;
+  --inputs-fill: #D2DAEB;
+  --inputs-stroke: #A0ACC1;
+  --checkbox-fill: #A0ACC1;
+  --checkbox-stroke: #778091;
+  --tic: #000;
+  --pagination-hightlight: #293D65;
+  --table-tree: #605F5F;
+  --add-button-fill: #709E6E;
+  --add-button-stroke: #3D5B3C;
+  --not-sorted-button: #9F9F9F;
+  --placeholder-text: #818BA0;
+  --notification-success: #709E6E;
+  --notification-error: #C62F2F;
+}
+
+html:root[data-theme="dark"] {
+  --bg: #252634;
+  --button-primary: #A671B4;
+  --button-text-stroke: #490E62;
+  --text-color: #FFF;
+  --effects-button: #F6D4FF;
+  --effects-delete-buttons: #d55757;
+  --effects-add-buttons: #5a8259;
+  --delete-table-buttons: #F5D1FF;
+  --delete-buttons-fill: #A10E0E;
+  --delete-button-text-stroke: #0B0000;
+  --bg-table: #4E3854;
+  --header-table: #A671B4;
+  --row-selection: #360F42;
+  --edit-inputs-buttons: #F5D1FF;
+  --inputs-fill: #906B9A;
+  --inputs-stroke: #BE8ACC;
+  --checkbox-fill: #BE8ACC;
+  --checkbox-stroke: #F6D4FF;
+  --tic: #FFF;
+  --pagination-hightlight: #6D4D76;
+  --table-tree: #F5D1FF;
+  --add-button-fill: #466745;
+  --add-button-stroke: #273C26;
+  --not-sorted-button: #5E5E5E;
+  --placeholder-text: #F5D1FF;
+  --notification-success: #466745;
+  --notification-error: #A10E0E;
 }

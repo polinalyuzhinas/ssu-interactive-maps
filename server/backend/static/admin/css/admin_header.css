@@ -1,64 +1,60 @@
-#header {
+.skip-to-content-link {
+    display: none !important;
+}
+
+div#header {
+  background: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  background: #fff;
-  border-bottom: 1px solid #e0e4ea;
-  min-height: 64px;
+  min-height: var(--desktop-header-min-height);
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .header-left {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex: 1;
 }
 
 .back-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: #7B8EB5;
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  width: 98px;
+  height: 75px;
   flex-shrink: 0;
-}
-
-.back-button:hover {
-  background: #5b7fa6;
-  transform: translateX(-2px);
+  padding: 0;
 }
 
 .back-button svg {
-  width: 20px;
-  height: 20px;
+  width: 60px;
+  height: 60px;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 #branding h1#site-name {
+  font-family: var(--header-font);
+  color: var(--text-color);
+  font-size: var(--desktop-main-header-font-size);
+  font-weight: var(--headers-font-weight);
+  line-height: 1.2;
   margin: 0;
-  font-size: 1.35rem;
-  font-weight: 700;
-}
-
-#branding h1#site-name a {
-  color: #1a2332;
-  text-decoration: none;
-  border-bottom: 2px solid #1a2332;
-  padding-bottom: 2px;
-  transition: color 0.2s ease;
-}
-
-#branding h1#site-name a:hover {
-  color: #5b7fa6;
-  border-bottom-color: #5b7fa6;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
 }
 
 #user-tools {
   display: flex;
   align-items: center;
   gap: 20px;
+  flex-shrink: 0;
 }
 
 .user-profile {
@@ -69,11 +65,7 @@
   text-decoration: none;
   padding: 4px 8px;
   border-radius: 8px;
-  transition: background 0.2s ease;
-}
-
-.user-profile:hover {
-  background: rgba(123, 142, 181, 0.1);
+  transition: background-color var(--transition-duration) ease;
 }
 
 .user-avatar {
@@ -88,63 +80,74 @@
   border: none;
 }
 
+.user-avatar svg {
+  width: 80%;
+  height: 80%;
+}
+
 .user-name {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: #1a2332;
+  font-family: var(--header-font);
+  color: var(--text-color);
+  font-size: var(----desktop-header-font-size);
+  font-weight: var(--headers-font-weight);
   letter-spacing: 0.03em;
   text-transform: uppercase;
   white-space: nowrap;
   max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: center;
 }
 
-/* hiding default <a> from Django */
-#user-tools > a:not(.user-profile),
-#user-tools > form,
-#user-tools > strong {
-  display: none !important;
+.user-avatar {
+  background-color: var(--button-primary);
+}
+
+.user-avatar svg path {
+  stroke: var(--button-text-stroke);
 }
 
 .theme-buttons {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
-.theme-btn {
+button.theme-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   width: var(--desktop-size-theme-button);
   height: var(--desktop-size-theme-button);
-  border: none;
-  border-radius: 50px;
-  transition: all 0.25s ease;
-}
-
-.theme-btn-light {
-  background-color: var(--light-button-primary);
-}
-
-.theme-btn-dark {
-  background-color: var(--dark-button-primary);
-}
-
-.theme-btn svg {
-  transition: all 0.25s ease;
-}
-
-.theme-btn.unactive {
-  background-color: var(--disabled-button-fill);
+  border-radius: 50%;
   cursor: pointer;
+  flex-shrink: 0;
+  transition: transform var(--transition-duration) ease, outline 0.2s ease;
 }
 
-.theme-btn.unactive svg path {
-  stroke: var(--disabled-button-stroke);
+button.theme-btn:not(:disabled):hover {
+   outline: var(--button-hover-outline-width) dashed var(--effects-button);
+   outline-offset: 3px;
+   transform: translateY(-2px);
 }
 
-.theme-btn.unactive:hover {
-  opacity: 0.5;
+.theme-btn:focus-visible {
+  box-shadow: 3px 3px 0px var(--disabled-button-stroke);
+  outline: none;
+}
+
+.theme-btn:focus-visible svg {
+    filter: none;
+    transition: none;
+}
+
+.theme-btn:disabled {
+  cursor: default;
+  transform: none;
+  outline: none;
+}
+
+#branding h1#site-name {
+    color: var(--text-color);
 }

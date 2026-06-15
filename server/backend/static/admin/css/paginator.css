@@ -1,0 +1,81 @@
+#changelist .paginator {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+  background: none;
+}
+
+.custom-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+.pagination-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pagination-wrapper a,
+.pagination-wrapper span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 33px;
+  padding: 0 8px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.paginator .pagination-wrapper a {
+  background-color: var(--button-primary);
+  color: var(--button-color-text);
+  -webkit-text-stroke: var(--button-text-stroke-width) var(--button-text-stroke);
+  text-stroke: var(--button-text-stroke-width) var(--button-text-stroke);
+}
+
+.pagination-wrapper a:hover {
+  outline: var(--button-hover-outline-width) dashed var(--effects-button);
+  outline-offset: 3px;
+  transform: translateY(-2px);
+}
+
+.pagination-wrapper a:focus-visible {
+    outline: none;
+    box-shadow: 3px 3px 0px var(--effects-button);
+    text-shadow: 3px 3px 0px var(--button-text-stroke);
+    transition: box-shadow var(--transition-duration) ease, text-shadow var(--transition-duration) ease;
+}
+
+.pagination-wrapper a:active {
+  transform: scale(0.95);
+}
+
+.pagination-wrapper .this-page,
+.pagination-wrapper span.current {
+  background-color: var(--pagination-hightlight);
+  color: var(--button-color-text);
+  -webkit-text-stroke: var(--button-text-stroke-width) var(--button-text-stroke);
+  text-stroke: var(--button-text-stroke-width) var(--button-text-stroke);
+  cursor: default;
+}
+
+.pagination-wrapper .end,
+.pagination-wrapper .dots {
+  background-color: transparent;
+  min-width: 24px;
+  cursor: default;
+  font-weight: 700;
+  letter-spacing: 2px;
+}

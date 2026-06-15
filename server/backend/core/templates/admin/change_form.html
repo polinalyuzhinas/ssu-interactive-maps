@@ -1,5 +1,15 @@
 {% extends "admin/change_form.html" %}
-{% load static %}
+{% load static admin_modify %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'admin/css/variables.css' %}">
+<link rel="stylesheet" href="{% static 'admin/css/table_header.css' %}">
+<link rel="stylesheet" href="{% static 'admin/css/table_body.css' %}">
+<link rel="stylesheet" href="{% static 'admin/css/notifications.css' %}">
+<link rel="stylesheet" href="{% static 'admin/css/autocomplete.css' %}">
+<link rel="stylesheet" href="{% static 'admin/css/bulk_actions_controls.css' %}">
+{% endblock %}
 
 {% block extrahead %}
 {{ block.super }}
@@ -8,150 +18,172 @@
 <script src="{% static 'admin/js/vendor/select2/select2.full.js' %}"></script>
 <script src="{% static 'admin/js/admin/custom_autocomplete.js' %}"></script>
 <script src="{% static 'admin/js/admin/autosave.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const errorNote = document.querySelector('.errornote');
+        const errorList = document.querySelector('.errorlist');
+        
+        if (errorNote || errorList) {
+            document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(function(input) {
+                input.value = '';
+            });
+            
+            document.querySelectorAll('select').forEach(function(select) {
+                if (select.options.length > 0) {
+                    select.selectedIndex = 0;
+                }
+            });
+            
+            document.querySelectorAll('input[type="checkbox"]').forEach(function(checkbox) {
+                checkbox.checked = false;
+            });
+        }
+    });
+</script>
 {% endblock %}
 
-{% block field_sets %}
-<div class="inline-group">
-    <table id="result_list" class="table table-hover">
-        <thead>
-            <tr>
+{% block content_title %}{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}{% if form_url %}action="{{ form_url }}" {% endif %}method="post" id="{{ opts.model_name }}_form" novalidate>
+    {% csrf_token %}
+    {% block form_top %}{% endblock %}
+
+    <div>
+      {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+      {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+      {% if errors %}
+        <p class="errornote">
+            Пожалуйста, исправьте ошибки ниже.
+        </p>
+        {{ adminform.form.non_field_errors }}
+      {% endif %}
+    
+      {% block field_sets %}
+      <div class="inline-group">
+        <table id="result_list" class="table table-hover">
+            <thead>
+                <tr>
+                    {% for field in adminform.form.visible_fields %}
+                    <th scope="col" class="result-list-header header-text">{{ field.label }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
                 {% for field in adminform.form.visible_fields %}
-                <th scope="col">{{ field.label }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-         <tbody>
-            <tr>
-              {% for field in adminform.form.visible_fields %}
-              <td class="editable-cell"
-                  data-field-name="{{ field.name }}"
-                  data-pk="add" 
-                  data-app-label="{{ opts.app_label }}"
-                  data-model-name="{{ opts.model_name }}"
-                  data-editable="{{ info.editable|default:True }}">>
-                  <div class="cell-editor">
-                      
-                      {% if field.field.widget.choices %}
-                          {% if field.field.queryset %}
-                              {# FOREIGNKEY #}
-                              <div style="display:none;">{{ field }}</div>
-                              <input type="text" class="cell-input cell-foreignkey" 
+                <td class="editable-cell"
+                    data-field-name="{{ field.name }}"
+                    data-pk="add" 
+                    data-app-label="{{ opts.app_label }}"
+                    data-model-name="{{ opts.model_name }}"
+                    data-editable="{{ info.editable|default:True }}">
+                    <div class="cell-editor">
+                        
+                        {% if field.field.widget.choices %}
+                            {% if field.field.queryset %}
+                                {# hidden input for dispatching new value to Django #}
+                                <input type="hidden" name="{{ field.name }}" id="id_{{ field.name }}" value="">
+                                <input type="text" class="cell-input cell-foreignkey" 
+                                        value="" 
+                                        data-original-pk=""
+                                        data-field-name="{{ field.name }}"
+                                        data-app-label="{{ opts.app_label }}"
+                                        data-model-name="{{ opts.model_name }}"
+                                        autocomplete="off"
+                                        disabled>
+                                <button type="button" class="edit-icon-btn" title="Редактировать">
+                                    <svg class="icon-edit" width="25" height="25" viewBox="0 0 25 25">
+                                        <path d="M3.95 23.3L0.75 24.25L1.7 21.13L3.95 23.3ZM24.32 3.32L6.52 21.2L3.91 18.55L21.68 0.71L24.32 3.32Z" fill="currentColor" stroke="currentColor"/>
+                                    </svg>
+                                    <svg class="icon-save" width="25" height="25" viewBox="0 0 25 25" fill="currentColor">
+                                    <path d="M 21.519071,1.1235445 11.206687,20.360063 3.203125,11.173828 c -1.0742417,0.818449 -1.375152,1.172945 -2.71875,2.359375 l 9.415288,10.756089 c 0.909882,1.05669 2.506231,0.793081 3.17919,-0.428232 L 24.755859,2.9648438 C 23.257261,2.2254442 23.256917,2.1896147 21.519071,1.1235445 Z"/>
+                                    </svg>
+                                </button>
+                            {% else %}
+                                {# hidden input for dispatching new value to Django #}
+                                <input type="hidden" name="{{ field.name }}" id="id_{{ field.name }}" value="">
+                                <select class="cell-select" 
+                                        data-original-value="" 
+                                        style="flex: 1;" 
+                                        disabled>
+                                    {% for choice_key, choice_label in field.field.choices %}
+                                        <option value="{{ choice_key }}" {% if choice_key|stringformat:"s" == field.value|stringformat:"s" %}selected{% endif %}>
+                                            {{ choice_label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <button type="button" class="edit-icon-btn" title="Редактировать">
+                                    <svg  class="icon-edit" width="25" height="25" viewBox="0 0 25 25" fill="currentColor" stroke="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M 22.935763,0.00398384 A 1.3049467,2.2175046 0 0 0 22.035214,0.73448988 L 12.15636,19.392712 2.2758062,0.73448988 A 1.3049467,2.2175046 0 0 0 0.43222914,0.56990948 1.3049467,2.2175046 0 0 0 0.33537763,3.7027121 L 11.186146,24.188642 a 1.3050772,2.2177263 0 0 0 1.938729,0 L 23.975643,3.7027121 A 1.3049467,2.2175046 0 0 0 23.878792,0.56990948 1.3049467,2.2175046 0 0 0 22.935763,0.00398384 Z"/>
+                                    </svg>
+
+                                    <svg class="icon-save" width="25" height="25" viewBox="0 0 25 25" fill="currentColor" stroke="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M 21.519071,1.1235445 11.206687,20.360063 3.203125,11.173828 c -1.0742417,0.818449 -1.375152,1.172945 -2.71875,2.359375 l 9.415288,10.756089 c 0.909882,1.05669 2.506231,0.793081 3.17919,-0.428232 L 24.755859,2.9648438 C 23.257261,2.2254442 23.256917,2.1896147 21.519071,1.1235445 Z"/>
+                                    </svg>
+                                </button>
+                            {% endif %}
+                        
+                        {% elif field.field.widget.input_type == 'checkbox' %}
+                            {# hidden input for dispatching new value to Django #}
+                            <input type="hidden" name="{{ field.name }}" id="id_{{ field.name }}" value="">
+                            <label class="cell-boolean-wrapper">
+                                <input type="checkbox" 
+                                        class="cell-boolean" 
+                                        data-original-value="false"
+                                        disabled>
+                                <span class="boolean-indicator"></span>
+                            </label>
+                        {% else %}
+                            {# hidden input for dispatching new value to Django #}
+                            <input type="hidden" name="{{ field.name }}" id="id_{{ field.name }}" value="">
+                            <input type="text" 
+                                    class="cell-input cell-text" 
                                     value="" 
-                                    data-original-pk=""
+                                    data-original-value=""
                                     data-field-name="{{ field.name }}"
                                     data-app-label="{{ opts.app_label }}"
                                     data-model-name="{{ opts.model_name }}"
                                     autocomplete="off"
                                     disabled>
-                              <button type="button" class="edit-icon-btn" title="Редактировать">
-                                <svg width="26" height="25" viewBox="0 0 26 25">
-                                    <path d="M3.95 23.3L0.75 24.25L1.7 21.13L3.95 23.3ZM24.32 3.32L6.52 21.2L3.91 18.55L21.68 0.71L24.32 3.32Z" fill="#818BA0"/>
+                            <button type="button" class="edit-icon-btn" title="Редактировать">
+                                <svg class="icon-edit" width="25" height="25" viewBox="0 0 25 25"><path d="M3.95 23.3L0.75 24.25L1.7 21.13L3.95 23.3ZM24.32 3.32L6.52 21.2L3.91 18.55L21.68 0.71L24.32 3.32Z" fill="currentColor" stroke="currentColor"/></svg>
+                                <svg class="icon-save" width="25" height="25" viewBox="0 0 25 25" fill="currentColor">
+                                <path d="M 21.519071,1.1235445 11.206687,20.360063 3.203125,11.173828 c -1.0742417,0.818449 -1.375152,1.172945 -2.71875,2.359375 l 9.415288,10.756089 c 0.909882,1.05669 2.506231,0.793081 3.17919,-0.428232 L 24.755859,2.9648438 C 23.257261,2.2254442 23.256917,2.1896147 21.519071,1.1235445 Z"/>
                                 </svg>
                             </button>
-                          {% else %}
-                              {# CHOICES #}
-                              <div style="display:none;">{{ field }}</div>
-                              <select class="cell-select" 
-                                      data-original-value="" 
-                                      style="flex: 1;" 
-                                      disabled>
-                                  <option value="">-</option>
-                                  {% for choice in field.field.choices %}
-                                      <option value="{{ choice.0 }}">{{ choice.1 }}</option>
-                                  {% endfor %}
-                              </select>
-                              <button type="button" class="edit-icon-btn" title="Редактировать">
-                                <svg width="42" height="24" viewBox="0 0 42 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M1.5 1.5L20.5199 22.5L39.5399 1.50002" stroke="#818BA0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                              </button>
-                          {% endif %}
-                      
-                      {% elif field.field.widget.input_type == 'checkbox' %}
-                          {# BOOLEAN #}
-                          <div style="display:none;">{{ field }}</div>
-                          <label class="cell-boolean-wrapper">
-                              <input type="checkbox" 
-                                    class="cell-boolean" 
-                                    data-original-value="false"
-                                    disabled>
-                              <span class="boolean-indicator"></span>
-                          </label>
-                      {% else %}
-                          {# TEXT #}
-                          <div style="display:none;">{{ field }}</div>
-                          <input type="text" 
-                                class="cell-input cell-text" 
-                                value="" 
-                                data-original-value=""
-                                data-field-name="{{ field.name }}"
-                                data-app-label="{{ opts.app_label }}"
-                                data-model-name="{{ opts.model_name }}"
-                                autocomplete="off"
-                                disabled>
-                          <button type="button" class="edit-icon-btn" title="Редактировать">
-                            <svg width="26" height="25" viewBox="0 0 26 25"><path d="M3.95 23.3L0.75 24.25L1.7 21.13L3.95 23.3ZM24.32 3.32L6.52 21.2L3.91 18.55L21.68 0.71L24.32 3.32Z" fill="#818BA0"/></svg>
-                          </button>
-                      {% endif %}
-                  </div>
-                  
-                  {% if field.errors %}
-                  <div class="errorlist" style="color: #dc3545; margin-top: 4px; font-size: 0.85em;">
-                      {{ field.errors }}
-                  </div>
-                  {% endif %}
-              </td>
+                        {% endif %}
+                    </div>
+                    {% if field.errors %}
+                    <div class="errorlist">
+                        {{ field.errors }}
+                    </div>
+                    {% endif %}
+                </td>
               {% endfor %}
-          </tr>
-      </tbody>
-    </table>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      {% endblock %}
+      {% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
+
+      {% block admin_change_form_document_ready %}
+        <script id="django-admin-form-add-constants"
+                src="{% static 'admin/js/change_form.js' %}"
+                {% if adminform and add %}
+                    data-model-name="{{ opts.model_name }}"
+                {% endif %}
+                async>
+        </script>
+        {{ media }}
+    {% endblock %}
+    
+    {% prepopulated_fields_js %}
+    </div>
+  </form>
 </div>
-{% endblock %}
-
-{% block admin_change_form_document_ready %}
-{{ block.super }}
-<script>
-django.jQuery(document).ready(function($) {
-        // Адаптируем стандартные виджеты Django под ожидаемую структуру autosave.js
-        $('.editable-cell').each(function() {
-            const cell = $(this);
-            const editor = cell.find('.cell-editor');
-            // Виджет всегда рендерится первым внутри .cell-editor
-            const widget = editor.children().first();
-            
-            if (!widget.length) return;
-
-            // Добавляем классы в зависимости от типа элемента
-            if (widget.is('select')) {
-                widget.addClass('cell-select');
-                // Если опций много, считаем это ForeignKey (включает автодополнение)
-                if (widget.find('option').length > 10) {
-                    widget.addClass('cell-foreignkey');
-                }
-                const selectedText = widget.find('option:selected').text();
-                const val = widget.val() || '';
-                widget.attr('data-original-value', val);
-                widget.attr('data-original-pk', val);
-                widget.attr('data-original-text', selectedText === '---------' ? '' : selectedText);
-            } else if (widget.attr('type') === 'checkbox') {
-                widget.addClass('cell-boolean');
-                widget.attr('data-original-value', widget.is(':checked') ? 'true' : 'false');
-            } else {
-                widget.addClass('cell-input');
-                const val = widget.val() || '';
-                widget.attr('data-original-value', val);
-            }
-
-            // Инициализируем состояние как в change_list: поле заблокировано до клика на карандаш
-            widget.prop('disabled', true);
-        });
-
-        // Опционально: отключаем API-автосохранение для страницы добавления (pk="add")
-        // UI-логика (карандаш, autocomplete, валидация) останется рабочей
-        if (typeof window.disableAutosaveForAdd === 'function') {
-            window.disableAutosaveForAdd();
-        }
-    });
-(jQuery);
-</script>
 {% endblock %}
