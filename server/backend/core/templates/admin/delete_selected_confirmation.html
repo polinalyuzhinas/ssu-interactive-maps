@@ -2,48 +2,57 @@
 {% load admin_urls static custom_admin_tags %}
 
 {% block extrastyle %}
-{{ block.super }}
-<link rel="stylesheet" href="{% static 'admin/css/variables.css' %}">
-<link rel="stylesheet" href="{% static 'admin/css/base.css' %}">
-<link rel="stylesheet" href="{% static 'admin/css/delete_confirmation.css' %}">
-<link rel="stylesheet" href="{% static 'admin/css/bulk_actions_controls.css' %}">
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/variables.css' %}" />
+  <link rel="stylesheet" href="{% static 'admin/css/base.css' %}" />
+  <link rel="stylesheet" href="{% static 'admin/css/delete_confirmation.css' %}" />
+  <link rel="stylesheet" href="{% static 'admin/css/bulk_actions_controls.css' %}" />
 {% endblock %}
 
-{% block breadcrumbs %}{% endblock %}
-{% block nav-sidebar %}{% endblock %}
-{% block content_title %}{% endblock %}
+{% block breadcrumbs %}
+{% endblock %}
+{% block nav-sidebar %}
+{% endblock %}
+{% block content_title %}
+{% endblock %}
 
 {% block content %}
-    <span class="delete-warning">Вы уверены, что хотите удалить следующие {{ opts.verbose_name_plural|capfirst }}? Все следующие объекты и связанные с ними элементы будут удалены:</span>
-    
-    <h2 class="objects-title">Объекты</h2>
-    
-    <table class="deleted-objects-table">
-        <thead>
-            <tr>
-                <th>Модель</th>
-                <th>Объект</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for model_name, object_str in deletable_objects|parse_deleted_objects %}
-            <tr>
-                <td class="model-name-cell">{{ model_name }}</td>
-                <td class="object-str-cell">{{ object_str }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+  <span class="delete-warning"
+    >Вы уверены, что хотите удалить следующие {{ opts.verbose_name_plural|capfirst }}? Все следующие
+    объекты и связанные с ними элементы будут удалены:</span
+  >
 
-    <form method="post">{% csrf_token %}
+  <h2 class="objects-title">Объекты</h2>
+
+  <table class="deleted-objects-table">
+    <thead>
+      <tr>
+        <th>Модель</th>
+        <th>Объект</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for model_name, object_str in deletable_objects|parse_deleted_objects %}
+        <tr>
+          <td class="model-name-cell">{{ model_name }}</td>
+          <td class="object-str-cell">{{ object_str }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <form method="post">
+    {% csrf_token %}
     <div class="confirm-buttons">
-        {% for obj in queryset %}
-            <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk }}">
-        {% endfor %}
-        <input type="hidden" name="action" value="delete_selected">
-        <input type="hidden" name="post" value="yes">
-        <input class="confirmation-button" type="submit" value="Да, уверен">
-        <a href="#" class="button cancel-link" onclick="window.history.back(); return false;">Нет, отменить и вернуться к выбору</a>
+      {% for obj in queryset %}
+        <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk }}" />
+      {% endfor %}
+      <input type="hidden" name="action" value="delete_selected" />
+      <input type="hidden" name="post" value="yes" />
+      <input class="confirmation-button" type="submit" value="Да, уверен" />
+      <a href="#" class="button cancel-link" onclick="window.history.back(); return false;"
+        >Нет, отменить и вернуться к выбору</a
+      >
     </div>
-    </form>
+  </form>
 {% endblock %}

@@ -1,21 +1,19 @@
 {% load static admin_list %}
 
 {% block extrastyle %}
-<link rel="stylesheet" href="{% static 'admin/css/paginator.css' %}">
+  <link rel="stylesheet" href="{% static 'admin/css/paginator.css' %}" />
 {% endblock %}
 
 <div class="paginator">
-  <span class="custom-count">
-    Всего: {{ cl.result_count }}
-  </span>
-  
+  <span class="custom-count"> Всего: {{ cl.result_count }} </span>
+
   <div class="pagination-wrapper">
     {% if pagination_required %}
       {% for i in page_range %}
-          {% paginator_number cl i %}
+        {% paginator_number cl i %}
       {% endfor %}
     {% else %}
-        <span class="this-page">1</span>
+      <span class="this-page">1</span>
     {% endif %}
   </div>
 </div>

@@ -1,3 +1,5 @@
+// СТАНДАРТНЫЙ СКРИПТ DJANGO, В ПРОЕКТЕ НАПРЯМУЮ НЕ ИСПОЛЬЗУЕТСЯ
+
 /**
  * Persist changelist filters state (collapsed/expanded).
  */

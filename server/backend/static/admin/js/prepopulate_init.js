@@ -1,3 +1,5 @@
+// СТАНДАРТНЫЙ СКРИПТ DJANGO, В ПРОЕКТЕ НАПРЯМУЮ НЕ ИСПОЛЬЗУЕТСЯ
+
 'use strict';
 {
     const $ = django.jQuery;

@@ -14,7 +14,7 @@ thead th.result-list-header {
   padding: 15px;
 }
 
-.sortable-header {
+.header-wrapper {
   display: flex;
   align-items: center;
   justify-content: end;

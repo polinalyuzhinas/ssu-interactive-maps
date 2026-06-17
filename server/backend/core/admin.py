@@ -1,20 +1,43 @@
+# JSON для парсинга/сериализации данных API
 import json
+# Регулярные выражения для очистки поисковых запросов
 import re
+# Модели Django для работы с полями и типами данных
 from django.db import models
+# Административная панель Django
 from django.contrib import admin
+# Локализация строк
 from django.utils.translation import gettext_lazy as _
+# Модели проекта
 from .models import Auditoriums, Auditorium_Types, Lessons, Faculty_Teachers, Faculties, Lessons_Schedule, Groups_Schedule, Groups
+# Глобальный сайт админки
 from django.contrib.admin.sites import site
+# JSON-ответы для API
 from django.http import JsonResponse
+# Декоратор для ограничения доступа только для staff-пользователей
 from django.contrib.admin.views.decorators import staff_member_required
+# Динамическое получение моделей по имени
 from django.apps import apps
+# Декораторы для ограничения HTTP-методов
 from django.views.decorators.http import require_http_methods
+# Шаблонные ответы Django
 from django.template.response import TemplateResponse
+# Q-объекты для сложных запросов с OR-логикой
 from django.db.models import Q
+# Безопасная вставка HTML в шаблоны
 from django.utils.html import format_html
+# SQL-функция LOWER для регистронезависимого поиска
 from django.db.models.functions import Lower
+# Исключение для несуществующих полей
 from django.core.exceptions import FieldDoesNotExist
 
+
+# =============================================================================
+# api endpoint: Обновление ячейки таблицы (inline-редактирование)
+# Позволяет редактировать значения полей прямо в списке объектов админки
+# без перехода на отдельную страницу редактирования.
+# Принимает POST-запрос с JSON: {pk, field, value}
+# =============================================================================
 @staff_member_required
 @require_http_methods(["POST"])
 def update_cell(request, app_label, model_name):  
@@ -46,9 +69,9 @@ def update_cell(request, app_label, model_name):
         elif model_field.get_internal_type() == 'BooleanField':
             value = value == 'True'
             
-        # with choices
+        # choices
         elif hasattr(model_field, 'choices') and model_field.choices:
-            # trying to convert to int
+            # если choices хранятся как int, пытаемся преобразовать значение
             first_choice = model_field.choices[0][0]
             if isinstance(first_choice, int):
                 try:
@@ -57,9 +80,8 @@ def update_cell(request, app_label, model_name):
                     pass
             
         setattr(obj, field, value)
-        
         obj.save()
-        
+        # пбновление объекта из БД для получения актуальных данных
         obj.refresh_from_db()
         
         return JsonResponse({'success': True, 'message': 'Saved'})
@@ -67,23 +89,32 @@ def update_cell(request, app_label, model_name):
     except Exception as e:
         print(f"\nerror: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
-    
+
+
+# =============================================================================
+# api endpoint: Получение информации о поле модели
+# Возвращает тип поля и доступные варианты выбора (для ForeignKey, choices, 
+# Boolean).
+# Используется фронтендом для определения, какой виджет редактирования показать.
+# =============================================================================
 @staff_member_required
 def get_field_info(request, app_label, model_name, field_name):
     try:
         model = apps.get_model(app_label, model_name)
         field = model._meta.get_field(field_name)
         
+        # ForeignKey
         if field.is_relation and field.many_to_one:
             related_model = field.related_model
             choices = []
-            for obj in related_model.objects.all()[:100]:
+            for obj in related_model.objects.all():
                 choices.append({
                     'value': str(obj.pk),
                     'label': str(obj)
                 })
             return JsonResponse({'type': 'foreignkey', 'choices': choices})
         
+        # choices
         elif hasattr(field, 'choices') and field.choices:
             choices = []
             for value, label in field.choices:
@@ -93,6 +124,7 @@ def get_field_info(request, app_label, model_name, field_name):
                 })
             return JsonResponse({'type': 'choices', 'choices': choices})
         
+        # BooleanField
         elif field.get_internal_type() == 'BooleanField':
             choices = [
                 {'value': 'True', 'label': 'Да'},
@@ -100,12 +132,78 @@ def get_field_info(request, app_label, model_name, field_name):
             ]
             return JsonResponse({'type': 'boolean', 'choices': choices})
         
+        # text input
         else:
             return JsonResponse({'type': 'text', 'choices': []})
             
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
+
+# ===================================================================
+# Карта поиска для автодополнения
+# Определяет, по каким именно полям связанной модели должен осуществляться
+# поиск при вводе текста в ForeignKey-полях админ-панели.
+# ====================================================================
+AUTOCOMPLETE_SEARCH_FIELDS = {
+    # Faculties (используется в Faculty_Teachers.faculty, Groups.faculty)
+    'core.faculties': ['short_name', 'full_name'],
+    
+    # Faculty_Teachers (используется в Lessons.assignment)
+    'core.faculty_teachers': [
+        'surname', 'name', 'patronymic',
+        'faculty__short_name', 'faculty__full_name'
+    ],
+    
+    # Lessons (используется в Groups_Schedule.lesson)
+    'core.lessons': [
+        'name',
+        'assignment__surname', 'assignment__name', 'assignment__patronymic'
+    ],
+    
+    # Groups (используется в Groups_Schedule.group)
+    'core.groups': [
+        'number',
+        'faculty__short_name', 'faculty__full_name'
+    ],
+    
+    # Groups_Schedule (используется в Lessons_Schedule.lesson)
+    'core.groups_schedule': [
+        'group__number',
+        'group__faculty__short_name',
+        'lesson__name',
+        'lesson__assignment__surname',
+        'lesson__assignment__name',
+        'lesson__assignment__patronymic'
+    ],
+    
+    # Auditorium_Types (используется в Auditoriums.auditorium_type)
+    'core.auditorium_types': ['name'],
+    
+    # Auditoriums (используется в Lessons_Schedule.auditorium)
+    'core.auditoriums': [
+        'number', 'description',
+        'auditorium_type__name'
+    ],
+}
+
+# =============================================================================
+# api endpoint: Автодополнение для полей (autocomplete_view)
+# Реализует поиск по мере ввода для ForeignKey и обычных текстовых полей.
+# 
+# Логика для ForeignKey:
+#   1. Определяет связанную модель и ищет её ключ в AUTOCOMPLETE_SEARCH_FIELDS.
+#   2. Если ключ найден, то использует явно заданный список полей.
+#   3. Если ключ отсутствует, то ищет по всем CharField/TextField.
+#   4. Формирует Q-объект с логикой OR (|=): запись возвращается, если термин
+#      найден хотя бы в одном из целевых полей (регистронезависимо через icontains).
+# 
+# Логика для обычных текстовых полей:
+#   1. Исключает NULL и пустые строки.
+#   2. Применяет SQL-функцию Lower() через annotate для регистронезависимости.
+#   3. Фильтрует через __contains по приведённому к нижнему регистру термину.
+#   4. Возвращает уникальные значения (distinct) с сортировкой.
+# =============================================================================
 @staff_member_required
 def autocomplete_view(request):
     try:
@@ -113,62 +211,51 @@ def autocomplete_view(request):
         app_label = request.GET.get('app_label')
         model_name = request.GET.get('model_name')
         field_name = request.GET.get('field_name')
-        
+
         if not all([app_label, model_name, field_name]):
             return JsonResponse({'results': []})
-        
+
         model = apps.get_model(app_label, model_name)
         model_field = model._meta.get_field(field_name)
-        
+
         if model_field.is_relation and model_field.many_to_one:
             related_model = model_field.related_model
             
-            # assembling all text from related fields
-            search_fields = [
-                f.name for f in related_model._meta.fields 
-                if isinstance(f, (models.CharField, models.TextField, models.IntegerField, models.SmallIntegerField))
-            ]
-            for f in related_model._meta.fields:
-                if f.is_relation and f.many_to_one:
-                    deeper_model = f.related_model
-                    for deeper_f in deeper_model._meta.fields:
-                        if isinstance(deeper_f, (models.CharField, models.TextField)):
-                            search_fields.append(f"{f.name}__{deeper_f.name}")
+            # Определяем поля для поиска через карту
+            search_key = f"{app_label}.{related_model._meta.model_name}"
+            search_fields = AUTOCOMPLETE_SEARCH_FIELDS.get(search_key)
             
+            # Если карта не определена, используем дефолтную логику
+            if not search_fields:
+                search_fields = [
+                    f.name for f in related_model._meta.fields
+                    if isinstance(f, (models.CharField, models.TextField))
+                ]
+
             qs = related_model.objects.all()
-            
+
             if term:
-                # deleting all symbols except alphas, digits and whitespaces
-                clean_term = re.sub(r'[^a-zA-Zа-яА-ЯёЁ0-9\s]', '', term)
-                words = clean_term.split()
-                
                 q_objects = Q()
-                for word in words:
-                    if len(word) < 2:
-                        continue 
-                    
-                    word_q = Q()
-                    for sf in search_fields:
-                        word_q |= Q(**{f'{sf}__icontains': word.lower()})
-                    q_objects &= word_q 
-                
+                for sf in search_fields:
+                    q_objects |= Q(**{f'{sf}__icontains': term})
                 qs = qs.filter(q_objects)
-            
+
             results = [{'id': str(obj.pk), 'text': str(obj)} for obj in qs[:20]]
             return JsonResponse({'results': results})
             
         else:
+            # Для обычных текстовых полей
             queryset = model.objects.exclude(**{f'{field_name}__isnull': True})
-            
+
             if isinstance(model_field, (models.CharField, models.TextField)):
                 queryset = queryset.exclude(**{f'{field_name}__exact': ''})
 
-            if term:
-                queryset = queryset.annotate(
-                    **{f'{field_name}_lower': Lower(field_name)}
-                ).filter(**{f'{field_name}_lower__contains': term.lower()})
-            
-            values = queryset.values_list(field_name, flat=True).distinct()[:20]
+                if term:
+                    queryset = queryset.annotate(
+                        **{f'{field_name}_lower': Lower(field_name)}
+                    ).filter(**{f'{field_name}_lower__contains': term.lower()})
+
+            values = queryset.order_by(field_name).values_list(field_name, flat=True).distinct()[:20]
             results = [{'id': str(val), 'text': str(val)} for val in values if val]
             return JsonResponse({'results': results})
             
@@ -178,6 +265,12 @@ def autocomplete_view(request):
         traceback.print_exc()
         return JsonResponse({'error': str(e), 'results': []}, status=400)
 
+
+# =============================================================================
+# вспомогательная функция: Получение вариантов выбора для поля
+# Универсальная функция для извлечения choices из любого типа поля.
+# Используется как в API, так и в миксине BaseModelAdminMixin.
+# =============================================================================
 def get_field_choices(field):
     choices = []
     
@@ -202,6 +295,10 @@ def get_field_choices(field):
 
     return choices
 
+# =============================================================================
+# вспомогательная функция: Определение типа поля
+# Возвращает строковый идентификатор типа для выбора виджета редактирования.
+# =============================================================================
 def get_field_type(field):
     if isinstance(field, models.BooleanField):
         return 'boolean'
@@ -213,9 +310,15 @@ def get_field_type(field):
         return 'text'
     return 'default'
 
+# =============================================================================
+# api endpoint: Получение всех объектов модели с метаинформацией
+# Возвращает список всех записей модели вместе с информацией о полях
+# (тип, варианты выбора, доступность редактирования).
+# Используется фронтендом для построения интерактивной таблицы с inline-редактированием.
+# =============================================================================
 @staff_member_required
 def get_all_objects(request, app_label=None, model_name=None, *args, **kwargs):
-    # if arguments from kwargs paramenter
+    # поддержка передачи параметров как через URL, так и через kwargs
     if app_label is None:
         app_label = kwargs.get('app_label')
     if model_name is None:
@@ -251,6 +354,7 @@ def get_all_objects(request, app_label=None, model_name=None, *args, **kwargs):
                     'editable': False,
                 }
 
+        # cбор данных всех объектов
         objects_data = []
         for obj in model.objects.all():
             obj_data = {'pk': obj.pk}
@@ -293,7 +397,14 @@ def get_all_objects(request, app_label=None, model_name=None, *args, **kwargs):
     except Exception as e:
         print(f"get_all_objects error: {e}")
         return JsonResponse({'error': str(e), 'success': False}, status=500)
-    
+
+
+# =============================================================================
+# Кастомизация страницы списка объектов (change_list), базовый класс для всех
+# моделей в админ-панели
+# Добавляет в контекст шаблона метаинформацию о полях для inline-редактирования.
+# Наследуется всеми классами админки проекта.
+# =============================================================================
 class BaseModelAdminMixin:
     list_per_page = 50
 
@@ -342,9 +453,15 @@ class BaseModelAdminMixin:
         
         return response
 
+# замена заголовка, а также убираем индексную страницу
 admin.site.site_header = _("Отредактировать расписание")
 admin.site.index_title = ""
 
+# =============================================================================
+# регистрация моделей в админ-панели
+# Каждая модель регистрируется с использованием BaseModelAdminMixin
+# для получения функциональности inline-редактирования
+# =============================================================================
 @admin.register(Auditoriums)
 class AuditoriumsAdmin(BaseModelAdminMixin, admin.ModelAdmin):
     list_display = ('number', 'description', 'floor', 'auditorium_type', 'display_have_lessons')
@@ -385,6 +502,12 @@ class GroupsScheduleAdmin(BaseModelAdminMixin, admin.ModelAdmin):
 class LessonsScheduleAdmin(BaseModelAdminMixin, admin.ModelAdmin):
     list_display = ('week_day', 'time', 'auditorium', 'lesson', 'subgroup', 'parity', 'comment')
 
+
+# =============================================================================
+# фильтрация списка приложений
+# Убираем стандартные модели Django (User, Group) из списка приложений,
+# чтобы не засорять интерфейс админ-панели.
+# =============================================================================
 original_get_app_list = admin.site.get_app_list
 
 def custom_get_app_list(request, app_label=None):
@@ -394,7 +517,6 @@ def custom_get_app_list(request, app_label=None):
     for app in app_list:
         filtered_models = []
         for model in app['models']:
-            # filtering User и Group deafault Django models from app_list
             if app['app_label'] == 'auth' and model['object_name'] in ['User', 'Group']:
                 continue
             filtered_models.append(model)

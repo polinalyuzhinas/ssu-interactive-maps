@@ -1,3 +1,5 @@
+// СТАНДАРТНЫЙ СКРИПТ DJANGO, В ПРОЕКТЕ НЕ ПЕРЕОПРЕДЕЛЯЛСЯ
+
 /*global gettext, interpolate, ngettext*/
 'use strict';
 {

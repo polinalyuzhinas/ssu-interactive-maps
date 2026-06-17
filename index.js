@@ -1,11 +1,12 @@
+// openlayers: ядро карты, слои, источники данных, геометрия, стили, проекции
 import OLMap from 'ol/Map.js';
 import View from 'ol/View.js';
 import ImageLayer from 'ol/layer/Image.js';
 import StaticImage from 'ol/source/ImageStatic.js';
 import { Projection, get } from 'ol/proj.js';
 import 'ol/ol.css';
+// proj4: библиотека для работы с пользовательскими системами координат
 import proj4 from 'proj4';
-
 // инструменты для векторных слоёв
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
@@ -13,16 +14,16 @@ import Feature from 'ol/Feature';
 import Polygon from 'ol/geom/Polygon';
 import Style from 'ol/style/Style';
 import Fill from 'ol/style/Fill';
-
 import Overlay from 'ol/Overlay'; // нужно для всплывающей надписи
 
+// физические размеры изображения плана этажа в пикселях
 const imageWidth = 3322;
 const imageHeight = 2014;
+// границы изображения в пользовательской системе координат
 const imageExtent = [0, 0, imageWidth, imageHeight];
 
 // определяем пользовательскую проекцию pixel-image
 proj4.defs("pixel-image", "+proj=identity +units=pixels +extent=0,0," + imageWidth + "," + imageHeight);
-
 // получаем пользовательскую проекцию OpenLayers
 const proj = new Projection({
     code: 'pixel-image',
@@ -30,8 +31,8 @@ const proj = new Projection({
     extent: imageExtent
 });
 
+// источник данных для полигонов аудиторий
 const vectorSource = new VectorSource();
-
 // cоздание векторного слоя
 const vectorLayer = new VectorLayer({
   source: vectorSource,
@@ -39,35 +40,52 @@ const vectorLayer = new VectorLayer({
     return feature.getStyle();
   }
 });
-
-const defaultStyle = new Style({ // стиль по умолчанию
+// стиль по умолчанию
+const defaultStyle = new Style({ 
     fill: new Fill({
         color: 'rgba(255, 255, 255, 0.01)'
-      }), // заливка
+      }),
     });
-  
-const highlightStyle = new Style({ // стиль при наведении курсора
+// стиль при наведении курсора
+const highlightStyle = new Style({ 
 fill: new Fill({
     color: 'rgba(98, 87, 255, 0.3)'
 })
 });
 
+// словарь для быстрого доступа к полигонам по их featureid
 const polygonFeatures = new Map();
+// кэш загруженных расписаний: ключ = номер аудитории, значение = массив пар
 const scheduleCache = new Map();
+// ссылка на текущее открытое модальное окно (для удаления при повторном клике)
 let openModal = null;
 
+// объект с активными фильтрами
 let currentFilters = {};
+// номер текущего этажа, используется для запроса фильтров
 let currentFloor = null;
 
+// =============================================================================
+// вспомогательные функции
+// =============================================================================
+// извлечение номера аудитории из строки описания полигона.
+// ищет цифры в начале строки.
+// возвращает null для служебных помещений (лестницы, коридоры)
 function extractAuditoriumNumber(description) {
     const match = description.match(/^(\d+)/);
     return match ? match[1] : null;
 }
 
-// функция для загрузки расписания с API
+
+// =============================================================================
+// api: загрузка расписания конкретной аудитории
+// =============================================================================
+// выполняет get-запрос к /api/schedule/<number>/.
+// перед запросом проверяет кэш, чтобы не нагружать сервер повторными кликами
 async function fetchSchedule(auditoriumNumber) {
     if (!auditoriumNumber) return [];
     
+    // возврат из кэша, если данные уже загружались в текущей сессии
     if (scheduleCache.has(auditoriumNumber)) {
         return scheduleCache.get(auditoriumNumber);
     }
@@ -79,6 +97,7 @@ async function fetchSchedule(auditoriumNumber) {
         const data = await response.json();
         const schedule = data.schedule || [];
         
+        // сохранение в кэш для последующих обращений
         scheduleCache.set(auditoriumNumber, schedule);
         return schedule;
     } catch (error) {
@@ -87,7 +106,12 @@ async function fetchSchedule(auditoriumNumber) {
     }
 }
 
-// загрузка глобальных фильтров при старте
+// =============================================================================
+// api: загрузка опций для глобальных фильтров
+// =============================================================================
+// выполняется один раз при инициализации страницы этажа.
+// запрашивает уникальные значения (факультеты, группы, преподаватели и т.д.)
+// именно для текущего этажа, чтобы не загружать лишние данные
 async function loadFilterOptions(floor) {
     try {
         const response = await fetch(`/api/filters/?floor=${floor}`);
@@ -103,7 +127,12 @@ async function loadFilterOptions(floor) {
     }
 }
 
-function template_polygon_feature(coordinates, description, featureID) {
+// =============================================================================
+// ui: создание полигона аудитории на карте
+// =============================================================================
+// создаёт openlayers feature с заданной геометрией, сохраняет описание и id,
+// применяет стиль по умолчанию и добавляет в векторный источник
+function templatePolygonFeature(coordinates, description, featureID) {
     const feature = new Feature({
         geometry: new Polygon(coordinates)
     });
@@ -113,6 +142,12 @@ function template_polygon_feature(coordinates, description, featureID) {
     polygonFeatures.set(featureID, feature);
 }
 
+// =============================================================================
+// логика: обновлённая фильтрация расписания
+// =============================================================================
+// принимает массив пар и объект фильтров. возвращает только те записи,
+// которые совпадают по всем активным критериям (and-логика).
+// поддерживает сравнение строк и массивов
 function filterSchedule(schedule, filters) {
     if (!schedule || schedule.length === 0) return [];
     return schedule.filter(item => {
@@ -129,7 +164,11 @@ function filterSchedule(schedule, filters) {
     });
 }
 
-function create_popup() {
+// =============================================================================
+// ui: создание всплывающей подсказки (popup)
+// =============================================================================
+// overlay openlayers, который позиционируется над полигоном при наведении мыши
+function createPopup() {
     const popup = new Overlay({
         element: document.createElement('div'),
         autoPan: true,
@@ -140,7 +179,12 @@ function create_popup() {
     return popup;
 }
 
-function create_map(image_url) {
+// =============================================================================
+// ui: инициализация карты
+// =============================================================================
+// создаёт экземпляр карты openlayers, привязывает статическое изображение плана
+// к пиксельной проекции и настраивает начальный масштаб и центр.
+function createMap(image_url) {
     const imageLayer = new ImageLayer({ // слой с изображением (статичным)
     source: new StaticImage({
         url: image_url,
@@ -163,12 +207,18 @@ function create_map(image_url) {
         }),
     });
 
-    map.getView().fit(imageExtent); // автоматический подбор масштаба карты
+    // автоматический подбор масштаба карты
+    map.getView().fit(imageExtent);
 
     return map;
 }
 
-// обработчик события наведения курсора мыши
+
+// =============================================================================
+// ui: обработка наведения курсора (pointermove)
+// =============================================================================
+// отслеживает движение мыши над картой: меняет курсор на pointer, подсвечивает
+// полигон под курсором и показывает popup с названием аудитории.
 function pointermove(map, defaultStyle, highlightStyle, popup) {
     
     let highlightedFeature = null;
@@ -210,6 +260,11 @@ function pointermove(map, defaultStyle, highlightStyle, popup) {
     });
 }
 
+// =============================================================================
+// ui: обработка клика по аудитории
+// =============================================================================
+// при клике на полигон определяет id аудитории,
+// загружает расписание (или берёт из кэша) и открывает модальное окно
 function click(map, showScheduleModal) {
     map.on('click', async function (evt) {
         const feature = map.forEachFeatureAtPixel(evt.pixel, f => f);
@@ -251,6 +306,10 @@ function click(map, showScheduleModal) {
     });
 }
 
+// =============================================================================
+// ui: заполнение выпадающих списков фильтров
+// =============================================================================
+// создаёт <option> для каждого уникального значения, полученного с бэкенда.
 function populateFilterForm(options) {
     const fields = ['department', 'group', 'subgroup', 'teacher', 'lesson', 'type', 'parity'];
     const labels = {
@@ -277,7 +336,12 @@ function populateFilterForm(options) {
     });
 }
 
-// установка значений в фильтрах (берутся из расписания по этажу)
+// =============================================================================
+// ui: инициализация глобальных фильтров
+// =============================================================================
+// загружает опции для этажа, навешивает обработчики на селекты и кнопки.
+// кнопка "применить" пересоздаёт открытую модальное окно с новыми фильтрами.
+// кнопка "сбросить" очищает состояние и закрывает окно.
 async function setupGlobalFilters(floor) {
     currentFloor = floor;
     
@@ -330,6 +394,14 @@ async function setupGlobalFilters(floor) {
     });
 }
 
+// =============================================================================
+// ui: рендеринг модального окна с расписанием
+// =============================================================================
+// формирует html-разметку модалки. группирует пары по дням недели,
+// строит таблицы. обрабатывает три сценария:
+// 1. расписание отсутствует в бд
+// 2. расписание есть, но фильтры отсеяли все записи
+// 3. есть отфильтрованные данные для отображения
 function show_schedule(description, schedule, id, filters = {}) {
     const modal = document.createElement('div');
     modal.id = `schedule-modal-${id}`;
@@ -415,13 +487,14 @@ function show_schedule(description, schedule, id, filters = {}) {
     return modal;
 }
 
+// всякие экспорты
 export {
-    create_map,
-    create_popup,
+    createMap,
+    createPopup,
     pointermove,
     click,
     polygonFeatures,
-    template_polygon_feature,
+    templatePolygonFeature,
     defaultStyle,
     highlightStyle,
     imageWidth,

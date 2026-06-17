@@ -1,3 +1,5 @@
+// СТАНДАРТНЫЙ СКРИПТ DJANGO, В ПРОЕКТЕ НАПРЯМУЮ НЕ ИСПОЛЬЗУЕТСЯ
+
 /*global DateTimeShortcuts, SelectFilter*/
 /**
  * Django admin inlines

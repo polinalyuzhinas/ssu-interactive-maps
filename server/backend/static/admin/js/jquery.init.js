@@ -1,3 +1,5 @@
+// СТАНДАРТНЫЙ СКРИПТ DJANGO, В ПРОЕКТЕ НАПРЯМУЮ НЕ ИСПОЛЬЗУЕТСЯ
+
 /*global jQuery:false*/
 'use strict';
 /* Puts the included jQuery into our own namespace using noConflict and passing

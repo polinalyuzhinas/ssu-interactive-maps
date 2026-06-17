@@ -1,5 +1,5 @@
 /*
-    DJANGO Admin styles
+    DJANGO Admin styles (НЕ ТРОГАТЬ)
 */
 
 /* default Django styles */
@@ -1145,7 +1145,7 @@ a.deletelink:focus, a.deletelink:hover {
     display: none;
 }
 
-/* custom styles */
+/* СОБСТВЕННЫЕ СТИЛИ */
 
 
 :root {
@@ -1317,8 +1317,6 @@ button.unactive svg path {
 body #result_list tbody tr.selected {
     background-color: var(--row-selection) !important;
 }
-
-/* change_form (add element page) styles */
 
 #content-main > form > div > .inline-group,
 #content-main > form > div > .submit-row {

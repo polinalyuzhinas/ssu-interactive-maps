@@ -2,72 +2,151 @@
 {% load static %}
 
 {% block extrastyle %}
-{{ block.super }}
-<link rel="stylesheet" href="{% static 'admin/css/fonts.css' %}">
-<link rel="stylesheet" href="{% static 'admin/css/admin_header.css' %}">
-<link rel="stylesheet" href="{% static 'admin/css/variables.css' %}">
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/fonts.css' %}" />
+  <link rel="stylesheet" href="{% static 'admin/css/admin_header.css' %}" />
+  <link rel="stylesheet" href="{% static 'admin/css/variables.css' %}" />
 {% endblock %}
 
 {% block extrahead %}
-{{ block.super }}
-<script src="{% static 'admin/js/theme_toggle.js' %}" defer></script>
+  {{ block.super }}
+  <script src="{% static 'admin/js/theme_toggle.js' %}" defer></script>
 {% endblock %}
 
-{% block content_title %}{% endblock %}
-{% block breadcrumbs %}{% endblock %}
-{% block nav-sidebar %}{% endblock %}
+{% block content_title %}
+{% endblock %}
+{% block breadcrumbs %}
+{% endblock %}
+{% block nav-sidebar %}
+{% endblock %}
 
 {% block header %}
-<div id="header">
-  <div class="header-left">
-    <div id="branding">
-      <h1 id="site-name">{{title|default:"Редактирование расписания"}}</h1>
+  <div id="header">
+    <div class="header-left">
+      <div id="branding">
+        <h1 id="site-name">{{ title|default:"Редактирование расписания" }}</h1>
+      </div>
+    </div>
+
+    <div id="user-tools">
+      <div class="theme-buttons">
+        <button
+          type="button"
+          class="theme-btn theme-btn-light"
+          data-theme="light"
+          title="Светлая тема"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="41"
+            height="41"
+            viewBox="0 0 41 41"
+            fill="none"
+          >
+            <path
+              d="M20.2501 28.5C24.8064 28.5 28.5001 24.8064 28.5001 20.25C28.5001 15.6937 24.8064 12 20.2501 12C15.6937 12 12.0001 15.6937 12.0001 20.25C12.0001 24.8064 15.6937 28.5 20.2501 28.5Z"
+              fill="#F5F5F5"
+              stroke="#304D86"
+              stroke-width="2"
+            />
+            <path d="M20.2499 7.875V1" stroke="#304D86" stroke-width="2" stroke-linecap="round" />
+            <path d="M20.25 32.625V39.5" stroke="#304D86" stroke-width="2" stroke-linecap="round" />
+            <path d="M7.875 20.25H1" stroke="#304D86" stroke-width="2" stroke-linecap="round" />
+            <path d="M32.625 20.25H39.5" stroke="#304D86" stroke-width="2" stroke-linecap="round" />
+            <path
+              d="M6.63702 6.63751L11.4495 11.45"
+              stroke="#304D86"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <path
+              d="M33.8624 6.63751L29.0499 11.45"
+              stroke="#304D86"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <path
+              d="M6.63702 33.8625L11.4495 29.05"
+              stroke="#304D86"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <path
+              d="M33.8624 33.8625L29.0499 29.05"
+              stroke="#304D86"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          class="theme-btn theme-btn-dark"
+          data-theme="dark"
+          title="Тёмная тема"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="43"
+            height="44"
+            viewBox="0 0 43 44"
+            fill="none"
+          >
+            <path
+              d="M41.3114 29.3594C23.7602 63.296 -23.2182 26.1861 16.5614 1.00002C16.5614 1.00002 6.60121 19.0176 12.0507 27.2969C16.4627 34 24.2466 37.6094 41.3114 29.3594Z"
+              fill="#F5F5F5"
+              stroke="#541B6C"
+              stroke-width="2"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <!-- hiding necessary Django elements -->
+      <button
+        class="theme-toggle visually-hidden"
+        aria-hidden="true"
+        style="display:none;"
+      ></button>
+
+      <div class="user-profile">
+        <button
+          type="button"
+          title="В профиль"
+          onclick="window.location.href='{% url 'admin:password_change' %}'"
+          class="user-avatar"
+        >
+          <svg
+            width="67"
+            height="74"
+            viewBox="0 0 67 74"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M30.1948 33.0065C15.4953 40.6433 5.81017 43.8006 1.1095 59.4985C1.1095 59.4985 12.0165 72.9616 34.2849 72.9616C52.9177 72.9616 65.6426 60.8013 65.6426 60.8013C63.8247 50.3783 58.8255 42.636 43.8286 36.6288L30.1948 33.0065Z"
+              fill="#F5F5F5"
+              stroke="#304D86"
+              stroke-width="2"
+            />
+            <path
+              d="M33.8304 1C44.2828 1 52.8263 9.84554 52.8265 20.8457C52.8265 31.8461 44.2829 40.6924 33.8304 40.6924C23.378 40.6923 14.8344 31.8461 14.8344 20.8457C14.8346 9.84556 23.3782 1.00004 33.8304 1Z"
+              fill="#F5F5F5"
+              stroke="#304D86"
+              stroke-width="2"
+            />
+          </svg>
+        </button>
+        <span class="user-name">
+          {{ request.user.get_short_name|default:request.user.username|upper }}
+        </span>
+      </div>
     </div>
   </div>
-
-  <div id="user-tools">
-    <div class="theme-buttons">
-      <button type="button" class="theme-btn theme-btn-light" data-theme="light" title="Светлая тема">
-        <svg xmlns="http://www.w3.org/2000/svg" width="41" height="41" viewBox="0 0 41 41" fill="none">
-          <path d="M20.2501 28.5C24.8064 28.5 28.5001 24.8064 28.5001 20.25C28.5001 15.6937 24.8064 12 20.2501 12C15.6937 12 12.0001 15.6937 12.0001 20.25C12.0001 24.8064 15.6937 28.5 20.2501 28.5Z" fill="#F5F5F5" stroke="#304D86" stroke-width="2"/>
-          <path d="M20.2499 7.875V1" stroke="#304D86" stroke-width="2" stroke-linecap="round"/>
-          <path d="M20.25 32.625V39.5" stroke="#304D86" stroke-width="2" stroke-linecap="round"/>
-          <path d="M7.875 20.25H1" stroke="#304D86" stroke-width="2" stroke-linecap="round"/>
-          <path d="M32.625 20.25H39.5" stroke="#304D86" stroke-width="2" stroke-linecap="round"/>
-          <path d="M6.63702 6.63751L11.4495 11.45" stroke="#304D86" stroke-width="2" stroke-linecap="round"/>
-          <path d="M33.8624 6.63751L29.0499 11.45" stroke="#304D86" stroke-width="2" stroke-linecap="round"/>
-          <path d="M6.63702 33.8625L11.4495 29.05" stroke="#304D86" stroke-width="2" stroke-linecap="round"/>
-          <path d="M33.8624 33.8625L29.0499 29.05" stroke="#304D86" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </button>
-      
-      <button type="button" class="theme-btn theme-btn-dark" data-theme="dark" title="Тёмная тема">
-        <svg xmlns="http://www.w3.org/2000/svg" width="43" height="44" viewBox="0 0 43 44" fill="none">
-          <path d="M41.3114 29.3594C23.7602 63.296 -23.2182 26.1861 16.5614 1.00002C16.5614 1.00002 6.60121 19.0176 12.0507 27.2969C16.4627 34 24.2466 37.6094 41.3114 29.3594Z" fill="#F5F5F5" stroke="#541B6C" stroke-width="2" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
-
-    <!-- hiding necessary Django elements -->
-    <button class="theme-toggle visually-hidden" aria-hidden="true" style="display:none;"></button>
-
-    <div class="user-profile">
-      <button type="button" title="В профиль" onclick="window.location.href='{% url 'admin:password_change' %}'" class="user-avatar">
-        <svg width="67" height="74" viewBox="0 0 67 74" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M30.1948 33.0065C15.4953 40.6433 5.81017 43.8006 1.1095 59.4985C1.1095 59.4985 12.0165 72.9616 34.2849 72.9616C52.9177 72.9616 65.6426 60.8013 65.6426 60.8013C63.8247 50.3783 58.8255 42.636 43.8286 36.6288L30.1948 33.0065Z" fill="#F5F5F5" stroke="#304D86" stroke-width="2"/>
-          <path d="M33.8304 1C44.2828 1 52.8263 9.84554 52.8265 20.8457C52.8265 31.8461 44.2829 40.6924 33.8304 40.6924C23.378 40.6923 14.8344 31.8461 14.8344 20.8457C14.8346 9.84556 23.3782 1.00004 33.8304 1Z" fill="#F5F5F5" stroke="#304D86" stroke-width="2"/>
-        </svg>
-      </button>
-      <span class="user-name">
-        {{ request.user.get_short_name|default:request.user.username|upper }}
-      </span>
-    </div>
-  </div>
-</div>
 {% endblock %}
 
 {% block content %}
-<div id="content-main">
-  {% include "admin/app_list.html" with app_list=app_list %}
-</div>
+  <div id="content-main">{% include "admin/app_list.html" with app_list=app_list %}</div>
 {% endblock %}

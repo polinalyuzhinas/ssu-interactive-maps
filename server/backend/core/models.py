@@ -1,8 +1,17 @@
+# Django ORM для определения моделей и связей между ними
 from django.db import models
+# Валидаторы для ограничения числовых значений (этажи от 1 до 7)
 from django.core.validators import MinValueValidator, MaxValueValidator
+# Исключение для сигнализации об ошибках валидации в админке
 from django.core.exceptions import ValidationError
+# Q-объекты для построения сложных SQL-запросов с логическими операторами OR
 from django.db.models import Q
 
+# =============================================================================
+# модель Faculties (Факультеты)
+# Базовый справочник факультетов, которые проводят занятия в корпусе.
+# Используется как внешний ключ в моделях Faculty_Teachers и Groups.
+# =============================================================================
 class Faculties(models.Model):
     full_name = models.TextField(verbose_name="Название", max_length=255, editable=False, default=None, unique=True, help_text="Полное название")
     short_name = models.TextField(verbose_name="Аббревиатура", max_length=15, editable=False, null=True, blank=True, help_text="Аббревиатура (если полное название длинное)")
@@ -17,6 +26,12 @@ class Faculties(models.Model):
         verbose_name_plural = "Факультеты"
 
 
+# =============================================================================
+# модель: Faculty_Teachers (Преподаватели)
+# Связь "преподаватель + факультет". Один и тот же человек может быть
+# представлен несколькими записями, если он ведёт пары на разных факультетах.
+# Запрещены полные дубликаты полей.
+# =============================================================================
 class Faculty_Teachers(models.Model):
     faculty = models.ForeignKey(Faculties, verbose_name="Факультет", editable=True, on_delete=models.RESTRICT, null=True, blank=True, help_text="Выберите из существующих")
     surname = models.TextField(verbose_name="Фамилия", max_length=255, editable=True, help_text="Фамилия преподавателя")
@@ -38,6 +53,13 @@ class Faculty_Teachers(models.Model):
             )
         ]
 
+
+# =============================================================================
+# модель: Lessons (Пары)
+# Справочник учебных дисциплин. Каждая пара привязана к преподавателю
+# (через Faculty_Teachers) и имеет тип (лекция/практика/лабораторная).
+# Запрещены полные дубликаты полей.
+# =============================================================================
 class Lessons(models.Model):
     LESSON_TYPES = [
         (1, "Практика"),
@@ -61,6 +83,14 @@ class Lessons(models.Model):
         verbose_name_plural = "Пары"
 
 
+# =============================================================================
+# модель: Groups (Учебные группы)
+# Справочник студенческих групп с привязкой к факультету, виду обучения
+# (бакалавриат/специалитет/магистратура/аспирантура, потом будут "базовое
+# высшее" и "специализированное высшее") и форме (очная/заочная/очно-заочная/
+# /вечернее).
+# Запрещены полные дубликаты полей.
+# =============================================================================
 class Groups(models.Model):
     GROUPS_TYPES = [
         (1, "Бакалавриат"),
@@ -97,6 +127,14 @@ class Groups(models.Model):
             )
         ]
 
+
+# =============================================================================
+# модель: Groups_Schedule (Пары по группам)
+# Промежуточная модель Many-to-Many между Groups и Lessons.
+# Нужна для поддержки лекционных потоков: одна и та же пара (Lessons)
+# может быть назначена нескольким группам одновременно.
+# Запрещены полные дубликаты полей.
+# =============================================================================
 class Groups_Schedule(models.Model):
     group = models.ForeignKey(Groups, editable=True, verbose_name="Группа", on_delete=models.CASCADE, help_text="Выберите из существующих записей")
     lesson = models.ForeignKey(Lessons, editable=True, verbose_name="Пара", on_delete=models.CASCADE, help_text="Выберите из существующих записей")
@@ -116,9 +154,12 @@ class Groups_Schedule(models.Model):
             )
         ]
     
-
+# =============================================================================
+# модель: Auditorium_Types (Виды аудиторий)
+# Справочник типов помещений: лекционная, компьютерный класс и т.д.
+# =============================================================================
 class Auditorium_Types(models.Model):
-    name = models.TextField(verbose_name="Тип", editable=False, max_length = 255, help_text="Название типа")
+    name = models.TextField(verbose_name="Тип", unique=True, editable=False, max_length = 255, help_text="Название типа")
 
     model_help_text = "Содержит список видов аудиторий (лекционная аудитория, компьютерный класс и т. п.)"
 
@@ -130,9 +171,15 @@ class Auditorium_Types(models.Model):
         verbose_name_plural = "Виды аудиторий"
 
 
+# =============================================================================
+# модель: Auditoriums (Аудитории)
+# Помещения корпуса. Номер аудитории является первичным ключом.
+# Поле have_lessons вычисляется автоматически при сохранении 
+# записей расписания (Lessons_Schedule).
+# =============================================================================
 class Auditoriums(models.Model):
     number = models.IntegerField(verbose_name="Номер", primary_key=True, editable=False, help_text="Номер аудитории")
-    description = models.TextField(verbose_name="Описание", default='', editable=True, null=True, blank=True, help_text="Описание аудитории (например, особое название, в честь кого она была названа)")
+    description = models.TextField(verbose_name="Описание", max_length=400, default='', editable=True, null=True, blank=True, help_text="Описание аудитории (например, особое название, в честь кого она была названа)")
     floor = models.SmallIntegerField(verbose_name="Этаж", editable=False, validators=[MinValueValidator(1),MaxValueValidator(7),], help_text="Номер этажа")
     auditorium_type = models.ForeignKey(Auditorium_Types, verbose_name="Тип", editable=True, on_delete=models.SET_NULL, null=True, blank=True, help_text="Лекционная аудитория, компьютерный класс и т.п.")
     have_lessons = models.BooleanField(verbose_name="Пары?", default=False, editable=False, help_text="Проводятся ли пары в аудитории") # это поле недоступно для ввода (меняют только триггеры)
@@ -140,16 +187,31 @@ class Auditoriums(models.Model):
     model_help_text = "Содержит список аудиторий XVII корпуса."
 
     def save(self, *args, **kwargs):
+        """
+        Переопределение сохранения: после записи в БД обновляется
+        поле have_lessons на основе наличия пар в расписании.
+        """
         super().save(*args, **kwargs)
         self._update_auditorium_status()
 
     def delete(self, *args, **kwargs):
+        """
+        Переопределение удаления. Сохраняем ссылку на объект до удаления,
+        чтобы после удаления из БД можно было корректно завершить обновление
+        статуса аудитории (наличие пар в ней).
+        """
         auditorium = self
         super().delete(*args, **kwargs)
         if auditorium:
             self._update_auditorium_status(auditorium)
 
     def _update_auditorium_status(self, auditorium=None):
+        """
+        Метод синхронизации флага have_lessons.
+        Проверяет, есть ли в Lessons_Schedule записи с этой аудиторией,
+        и при необходимости обновляет поле через update_fields
+        (чтобы не вызывать рекурсивный save).
+        """
         aud = auditorium or self
         if aud:
             has_lessons = Lessons_Schedule.objects.filter(auditorium=aud).exists()
@@ -166,6 +228,11 @@ class Auditoriums(models.Model):
         verbose_name_plural = "Аудитории"
 
 
+# =============================================================================
+# модель: Lessons_Schedule (Пункты расписания)
+# Центральная модель системы. Хранит конкретные слоты расписания:
+# какая пара, в какой аудитории, в какой день, время и для какой подгруппы.
+# =============================================================================
 class Lessons_Schedule(models.Model):
     SUBGROUP_VARIANTS = [
         (0, "Вся группа"), 
@@ -202,13 +269,13 @@ class Lessons_Schedule(models.Model):
 
     model_help_text = "Содержит список пунктов расписания (время, день недели, подгруппа, чётность, запись группа-пара)."
 
-    lesson = models.ForeignKey(Groups_Schedule, verbose_name="Пара", on_delete=models.RESTRICT, help_text="Запись Пара-Группа", db_index=True)
-    auditorium = models.ForeignKey(Auditoriums, verbose_name="Аудитория", on_delete=models.SET_NULL, null=True, help_text="Аудитория, в которой пара проводится", db_index=True)
+    lesson = models.ForeignKey(Groups_Schedule, verbose_name="Пара", on_delete=models.RESTRICT, help_text="Запись Пара-Группа")
+    auditorium = models.ForeignKey(Auditoriums, verbose_name="Аудитория", on_delete=models.SET_NULL, null=True, help_text="Аудитория, в которой пара проводится")
     subgroup = models.SmallIntegerField(verbose_name="Подгруппа", null=True, default=None, blank=True, choices=SUBGROUP_VARIANTS, help_text="Подгруппа", db_index=True)
     week_day = models.SmallIntegerField(verbose_name="День недели", choices=DAYS_ON_WEEK, help_text="День недели", db_index=True)
     time = models.SmallIntegerField(verbose_name="Время", choices=LESSON_TIME, help_text="Время проведения пары", db_index=True)
     parity = models.SmallIntegerField(verbose_name="Чётность", null=True, default=None, blank=True, choices=LESSON_PARITY, help_text="Числитель или знаменатель", db_index=True)
-    comment = models.TextField(verbose_name="Комментарий", max_length=255, null=True, blank=True, help_text="Комментарий от диспетчера", db_index=True)
+    comment = models.TextField(verbose_name="Комментарий", max_length=400, null=True, blank=True, help_text="Комментарий от диспетчера", db_index=True)
     
     def __str__(self):
         return f"{self.get_week_day_display()} {self.get_time_display()} {self.lesson}, комната {self.auditorium}, для {f'{self.subgroup} подгруппы' if self.subgroup else 'всей группы'}, {self.get_parity_display()}"
@@ -217,6 +284,10 @@ class Lessons_Schedule(models.Model):
         verbose_name = "Пункт расписания"
         verbose_name_plural = "Пункты расписания"
 
+        # Составные индексы для ускорения часто выполняемых запросов:
+        # - все пары в конкретный день и время
+        # - расписание конкретной аудитории
+        # - расписание конкретной пары (для поиска конфликтов преподавателя)
         indexes = [
             models.Index(fields=['week_day', 'time']),
             models.Index(fields=['auditorium', 'week_day', 'time']),
@@ -224,6 +295,18 @@ class Lessons_Schedule(models.Model):
         ]
 
     def clean(self):
+        """
+        Проверяет отсутствие конфликтов по четырём направлениям:
+          1. Конфликт по аудитории (два разных занятия в одной комнате одновременно)
+          2. Конфликт по преподавателю (один преподаватель не может вести две пары одновременно)
+          3. Конфликт по группе/подгруппе (студенты не могут быть в двух местах одновременно)
+          4. Проверка типа для лекционных потоков (одна и та же пара должна иметь один тип)
+        
+        Проверка на лекционный поток учитывает чётность (числитель/знаменатель):
+          - "нет" (каждую неделю) конфликтует со всеми записями
+          - "числитель" конфликтует с "числителем" и "нет"
+          - "знаменатель" конфликтует со "знаменателем" и "нет"
+        """
         super().clean()
 
         if not self.week_day or not self.time or not self.auditorium or not self.lesson:
@@ -245,7 +328,6 @@ class Lessons_Schedule(models.Model):
         else:
             parity_q = Q(parity__isnull=True)
 
-        # конфликт по аудитории
         if self.auditorium:
             room_conflict_qs = base_qs.filter(auditorium=self.auditorium).filter(parity_q)
             same_lesson_qs = room_conflict_qs.filter(lesson__lesson=self.lesson.lesson)
@@ -256,7 +338,6 @@ class Lessons_Schedule(models.Model):
                     'auditorium': 'Аудитория уже занята другой парой в это время.'
                 })
 
-            # конфликты с той же парой, проверка типа
             if same_lesson_qs.exists():
                 conflicting_types = same_lesson_qs.values_list('lesson__lesson__lesson_type', flat=True).distinct()
                 current_type = self.lesson.lesson.lesson_type
@@ -271,7 +352,6 @@ class Lessons_Schedule(models.Model):
                     })
                 # если типы совпадают – конфликта по аудитории нет
 
-        # конфликт по преподавателю
         if self.lesson and self.lesson.lesson and self.lesson.lesson.assignment:
             teacher_qs = base_qs.filter(
                 lesson__lesson__assignment=self.lesson.lesson.assignment
@@ -298,7 +378,6 @@ class Lessons_Schedule(models.Model):
                         )
                     })
 
-        # конфликт по группе
         group_conflict = base_qs.filter(lesson=self.lesson).filter(parity_q)
         if self.subgroup:
             group_conflict = group_conflict.filter(

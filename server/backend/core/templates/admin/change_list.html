@@ -2,22 +2,20 @@
 {% load admin_urls static admin_list custom_admin_tags %}
 
 {% block extrastyle %}
-{{ block.super }}
-<link rel="stylesheet" href="{% static 'admin/css/variables.css' %}">
-<link rel="stylesheet" href="{% static 'admin/css/base.css' %}">
-<link rel="stylesheet" href="{% static 'admin/css/table_header.css' %}">
-<link rel="stylesheet" href="{% static 'admin/css/table_body.css' %}">
-<link rel="stylesheet" href="{% static 'admin/css/bulk_actions_controls.css' %}">
-<link rel="stylesheet" href="{% static 'admin/css/notifications.css' %}">
-<link rel="stylesheet" href="{% static 'admin/css/autocomplete.css' %}">
-<link rel="stylesheet" href="{% static 'admin/css/paginator.css' %}">
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/variables.css' %}" />
+  <link rel="stylesheet" href="{% static 'admin/css/base.css' %}" />
+  <link rel="stylesheet" href="{% static 'admin/css/table_header.css' %}" />
+  <link rel="stylesheet" href="{% static 'admin/css/table_body.css' %}" />
+  <link rel="stylesheet" href="{% static 'admin/css/bulk_actions_controls.css' %}" />
+  <link rel="stylesheet" href="{% static 'admin/css/notifications.css' %}" />
+  <link rel="stylesheet" href="{% static 'admin/css/autocomplete.css' %}" />
+  <link rel="stylesheet" href="{% static 'admin/css/paginator.css' %}" />
 {% endblock %}
 
 {% block extrahead %}
   {{ block.super }}
   <script src="{% static 'admin/js/core.js' %}"></script>
-  <script src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
-  <script src="{% static 'admin/js/vendor/select2/select2.full.js' %}"></script>
   <script src="{% static 'admin/js/admin/headers_sorting.js' %}"></script>
   <script src="{% static 'admin/js/admin/bulk_actions.js' %}"></script>
   <script src="{% static 'admin/js/admin/custom_autocomplete.js' %}"></script>
@@ -27,74 +25,96 @@
 
 {% block title %}Изменить данные{% endblock %}
 {% block content_title %}{{ model_help_text }}{% endblock %}
-{% block breadcrumbs %}{% endblock %}
-{% block nav-sidebar %}{% endblock %}
-{% block object-tools-items %}{% endblock %}
+{% block breadcrumbs %}
+{% endblock %}
+{% block nav-sidebar %}
+{% endblock %}
+{% block object-tools-items %}
+{% endblock %}
 
 {% block content %}
-<div class="admin-horizontal-layout">
-  <div class="admin-sidebar">
-    {% include "admin/app_list.html" with app_list=app_list %}
-  </div>
+  <div class="admin-horizontal-layout">
+    <div class="admin-sidebar">{% include "admin/app_list.html" with app_list=app_list %}</div>
 
-  <div class="admin-main">
-    <div id="content-main">
-      {% if cl.formset and cl.formset.errors %}
-        <div class="errornote">
-          <span class="errornote">Пожалуйста, исправьте ошибки ниже.</span>
-        </div>
-        {{ cl.formset.non_form_errors }}
-      {% endif %}
-
-      <div class="module{% if cl.has_filters %} filtered{% endif %}" id="changelist">
-        <form id="changelist-form" method="post"{% if cl.formset and cl.formset.is_multipart %} enctype="multipart/form-data"{% endif %} novalidate>
-          {% csrf_token %}
-          {% if cl.formset %}
-            <div>{{ cl.formset.management_form }}</div>
-          {% endif %}
-
-          <!-- hiding necessary Django elements (avoiding exceptions) -->
-          <div class="visually-hidden" aria-hidden="true">
-            <input type="checkbox" id="action-toggle">
-            <button type="submit" name="index"></button>
-            <span class="action-counter" data-actions-icnt="0"></span>
+    <div class="admin-main">
+      <div id="content-main">
+        {% if cl.formset and cl.formset.errors %}
+          <div class="errornote">
+            <span class="errornote">Пожалуйста, исправьте ошибки ниже.</span>
           </div>
+          {{ cl.formset.non_form_errors }}
+        {% endif %}
 
-          {% block result_list %}
-            {% if action_form and actions_on_top and cl.show_admin_actions %}
-              {% admin_actions %}
+        <div class="module{% if cl.has_filters %}filtered{% endif %}" id="changelist">
+          <form
+            id="changelist-form"
+            method="post"
+            {% if cl.formset and cl.formset.is_multipart %}enctype="multipart/form-data"{% endif %}
+            novalidate
+          >
+            {% csrf_token %}
+            {% if cl.formset %}
+              <div>{{ cl.formset.management_form }}</div>
             {% endif %}
-            {% custom_result_list cl %}
-            {% if action_form and actions_on_bottom and cl.show_admin_actions %}
-              {% admin_actions %}
-            {% endif %}
-          {% endblock %}
 
-          {% block pagination %}
-            {% pagination cl %}
-            {% if opts.model_name != 'auditoriums' and opts.model_name != 'faculties' %}
-              <div class="bottom-buttons">
-                <button type="button" title="Удалить выбранное" id="btn-delete-selected" class="btn btn-delete">
-                  Удалить выбранное
-                </button>
-                <button type="button" title="Добавить элемент" class="btn btn-add" onclick="window.location.href='{% url cl.opts|admin_urlname:'add' %}'">
-                  +
-                </button>
-              </div>
-            {% else %}
-              <div class="bottom-buttons" style="display: none;" aria-hidden="true">
-                <button type="button" title="Удалить выбранное" id="btn-delete-selected" class="btn btn-delete" disabled>
+            <!-- hiding necessary Django elements (avoiding exceptions) -->
+            <div class="visually-hidden" aria-hidden="true">
+              <input type="checkbox" id="action-toggle" />
+              <button type="submit" name="index"></button>
+              <span class="action-counter" data-actions-icnt="0"></span>
+            </div>
+
+            {% block result_list %}
+              {% if action_form and actions_on_top and cl.show_admin_actions %}
+                {% admin_actions %}
+              {% endif %}
+              {% custom_result_list cl %}
+              {% if action_form and actions_on_bottom and cl.show_admin_actions %}
+                {% admin_actions %}
+              {% endif %}
+            {% endblock %}
+
+            {% block pagination %}
+              {% pagination cl %}
+              {% if opts.model_name != 'auditoriums' and opts.model_name != 'faculties' %}
+                <div class="bottom-buttons">
+                  <button
+                    type="button"
+                    title="Удалить выбранное"
+                    id="btn-delete-selected"
+                    class="btn btn-delete"
+                  >
                     Удалить выбранное
-                </button>
-                <button type="button" title="Добавить элемент" class="btn btn-add" disabled>
+                  </button>
+                  <button
+                    type="button"
+                    title="Добавить элемент"
+                    class="btn btn-add"
+                    onclick="window.location.href='{% url cl.opts|admin_urlname:'add' %}'"
+                  >
                     +
-                </button>
-              </div>
-            {% endif %}
-          {% endblock %}
-        </form>
+                  </button>
+                </div>
+              {% else %}
+                <div class="bottom-buttons" style="display: none;" aria-hidden="true">
+                  <button
+                    type="button"
+                    title="Удалить выбранное"
+                    id="btn-delete-selected"
+                    class="btn btn-delete"
+                    disabled
+                  >
+                    Удалить выбранное
+                  </button>
+                  <button type="button" title="Добавить элемент" class="btn btn-add" disabled>
+                    +
+                  </button>
+                </div>
+              {% endif %}
+            {% endblock %}
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</div>
 {% endblock %}

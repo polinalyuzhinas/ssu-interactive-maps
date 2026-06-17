@@ -1,31 +1,45 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>7 этаж</title>
     <link rel="icon" type="image/svg+xml" href="https://openlayers.org/theme/img/logo-dark.svg" />
     <link rel="stylesheet" href="/style_maps.css" />
-</head>
-<body>
+  </head>
+  <body>
     <div id="filter-form">
-        <select id="filter-department"><option value="">Факультеты</option></select>
-        <select id="filter-group"><option value="">Группы</option></select>
-        <select id="filter-subgroup"><option value="">Подгруппы</option></select>
-        <select id="filter-teacher"><option value="">Преподаватели</option></select>
-        <select id="filter-lesson"><option value="">Пары</option></select>
-        <select id="filter-type"><option value="">Типы</option></select>
-        <select id="filter-parity"><option value="">Чётность</option></select>
-        <button type="button" id="apply-filters" disabled>Применить</button>
-        <button type="button" id="reset-filters">Сбросить</button>
+      <select id="filter-department">
+        <option value="">Факультеты</option>
+      </select>
+      <select id="filter-group">
+        <option value="">Группы</option>
+      </select>
+      <select id="filter-subgroup">
+        <option value="">Подгруппы</option>
+      </select>
+      <select id="filter-teacher">
+        <option value="">Преподаватели</option>
+      </select>
+      <select id="filter-lesson">
+        <option value="">Пары</option>
+      </select>
+      <select id="filter-type">
+        <option value="">Типы</option>
+      </select>
+      <select id="filter-parity">
+        <option value="">Чётность</option>
+      </select>
+      <button type="button" id="apply-filters" disabled>Применить</button>
+      <button type="button" id="reset-filters">Сбросить</button>
     </div>
     <div id="map"></div>
     <script type="module" src="seventh_floor.js"></script>
     <div class="modal-content">
-        <div class="schedule-day-empty">
-            <h1>Расписание аудитории</h1>
-            <p>Выберите аудиторию на карте, чтобы посмотреть расписание</p>
-        </div>
+      <div class="schedule-day-empty">
+        <h1>Расписание аудитории</h1>
+        <p>Выберите аудиторию на карте, чтобы посмотреть расписание</p>
+      </div>
     </div>
-</body>
+  </body>
 </html>

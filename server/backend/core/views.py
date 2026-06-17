@@ -1,13 +1,22 @@
+# =============================================================================
+# api endpoints для приложения c интерактивной картой
+# =============================================================================
+# Содержит два публичных read-only endpoint'а, используемых фронтендом:
+#   1. /api/filters/?floor=N       - уникальные значения для глобальных фильтров
+#   2. /api/schedule/<number>/     - полное расписание конкретной аудитории
+#
+# Оба endpoint'а возвращают JSON и не требуют авторизации (публичные данные).
+# =============================================================================
+
+# JSON-ответы для API
 from django.http import JsonResponse
+# Ограничение HTTP-методов на только GET
 from django.views.decorators.http import require_GET
+# Динамическое получение моделей по имени (без циклических импортов)
 from django.apps import apps
 
 @require_GET
 def get_filter_options(request):
-    """
-    Возвращает уникальные значения для фильтров по конкретному этажу.
-    GET /api/filters/?floor=7
-    """
     try:
         floor = request.GET.get('floor')
         if not floor:
@@ -103,13 +112,10 @@ def get_filter_options(request):
         import traceback
         traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
-    
+
+ 
 @require_GET
 def get_auditorium_schedule(request, auditorium_number):
-    """
-    публичный API для расписания конкретной аудитории.
-    GET /api/schedule/<auditorium_number>/
-    """
     try:
         Auditoriums = apps.get_model('core', 'Auditoriums')
         Lessons_Schedule = apps.get_model('core', 'Lessons_Schedule')

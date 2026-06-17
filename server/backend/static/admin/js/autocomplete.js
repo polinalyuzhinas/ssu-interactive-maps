@@ -1,3 +1,5 @@
+// СТАНДАРТНЫЙ СКРИПТ DJANGO, В ПРОЕКТЕ ПЕРЕОПРЕДЕЛЯЛСЯ (CUSTOM_AUTOCOMPLETE)
+
 'use strict';
 {
     const $ = django.jQuery;

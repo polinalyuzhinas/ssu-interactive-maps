@@ -1,23 +1,28 @@
 {% load static %}
 
 {% block extrastyle %}
-<link rel="stylesheet" href="{% static 'admin/css/app_list.css' %}">
-<link rel="stylesheet" href="{% static 'admin/css/variables.css' %}">
+  <link rel="stylesheet" href="{% static 'admin/css/app_list.css' %}" />
+  <link rel="stylesheet" href="{% static 'admin/css/variables.css' %}" />
 {% endblock %}
 
 {% for app in app_list %}
-  <div class="app-{{ app.app_label }} module{% if app.app_url in request.path|urlencode %} current-app{% endif %}">
+  <div
+    class="app-{{ app.app_label }} module{% if app.app_url in request.path|urlencode %}current-app{% endif %}"
+  >
     <h2 class="app-title">
       <span>{{ app.name }}</span>
     </h2>
-      <ul class="tree-branches">
-        {% for model in app.models %}
-          <li class="tree-item {% if model.admin_url in request.path %}active-item{% endif %}">
-            <a href="{{ model.admin_url }}" class="tree-link {% if model.admin_url in request.path %}active-model{% endif %}">
-              <span class="model-name">{{ model.name }}</span>
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
+    <ul class="tree-branches">
+      {% for model in app.models %}
+        <li class="tree-item {% if model.admin_url in request.path %}active-item{% endif %}">
+          <a
+            href="{{ model.admin_url }}"
+            class="tree-link {% if model.admin_url in request.path %}active-model{% endif %}"
+          >
+            <span class="model-name">{{ model.name }}</span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
 {% endfor %}

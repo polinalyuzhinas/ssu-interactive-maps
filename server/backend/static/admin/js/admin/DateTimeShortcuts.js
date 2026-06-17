@@ -1,3 +1,5 @@
+// СТАНДАРТНЫЙ СКРИПТ DJANGO, В ПРОЕКТЕ НАПРЯМУЮ НЕ ИСПОЛЬЗУЕТСЯ
+
 /*global Calendar, findPosX, findPosY, get_format, gettext, gettext_noop, interpolate, ngettext, quickElement*/
 // Inserts shortcut buttons after all of the following:
 //     <input type="text" class="vDateField">

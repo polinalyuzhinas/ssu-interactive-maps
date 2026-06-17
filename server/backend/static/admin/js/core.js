@@ -1,3 +1,5 @@
+// СТАНДАРТНЫЙ СКРИПТ DJANGO, В ПРОЕКТЕ НЕ ПЕРЕОПРЕДЕЛЯЛСЯ
+
 // Core JavaScript helper functions
 'use strict';
 

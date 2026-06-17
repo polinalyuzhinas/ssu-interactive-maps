@@ -1,3 +1,5 @@
+// СТАНДАРТНЫЙ СКРИПТ DJANGO, В ПРОЕКТЕ НАПРЯМУЮ НЕ ИСПОЛЬЗУЕТСЯ
+
 /*global gettext, pgettext, get_format, quickElement, removeChildren*/
 /*
 calendar.js - Calendar functions by Adrian Holovaty
